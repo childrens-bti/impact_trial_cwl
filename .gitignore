@@ -1,0 +1,33 @@
+# Editor and system files
+.DS_Store
+*.swp
+*.bak
+*.log
+*.tmp
+-*
+
+# Python cache (if any helper scripts are used)
+__pycache__/
+*.py[cod]
+
+# CWL job and temp files
+*.cwl.json
+*.inputs.json
+*.outputs.json
+**/*.sh
+!rnaseq_merge.sh
+*.err
+*.out
+
+# Output and result files
+*.vcf
+*.gz
+*.zip
+outputs/
+params/
+test/*
+logs/
+
+# input
+data/*
+
