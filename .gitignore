@@ -14,8 +14,6 @@ __pycache__/
 *.cwl.json
 *.inputs.json
 *.outputs.json
-**/*.sh
-!rnaseq_merge.sh
 *.err
 *.out
 

@@ -1,9 +1,85 @@
 # CWL workflow fo IMPACT trial project
-This is a cwl wrapper for streamling all the processes in [impact-trial](https://github.com/childrens-bti/impact-trial)
+This repository provides a CWL (Common Workflow Language) wrapper for streamlining all processes in the [impact-trial](https://github.com/childrens-bti/impact-trial) project. The project includes various analyses related to translation and splicing-translation of genomic data.
 
 
+## Project Structure
 
-## To be modified ....
+The project is organized as follows:
+
+```
+impact_trial_cwl
+├── README.md
+├── workflows
+│   ├── translation.cwl
+│   ├── 01-snv-translate.cwl
+│   ├── 02-star-fusion-translate.cwl
+│   ├── 03-arriba-fusion-translate.cwl
+│   └── run_module.cwl
+│   ├── splicing_translation.cwl
+│   └── rMATS_SE_translation.cwl
+├── scripts
+│   ├── translation
+│   │   ├── run_module.sh
+│   │   ├── 01-snv-translate.py
+│   │   ├── 02-star-fusion-translate.py
+│   │   └── 03-arriba-fusion-translate.py
+│   └── splicing-translation
+│       └── rMATS_SE_translation.Rmd
+└── data
+
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Ensure you have Docker installed on your machine.
+- Install CWL tools (e.g., cwltool) to run the CWL workflows.
+- Install R and R packages required for the R Markdown script.
+
+### Setup Instructions
+
+1. **Clone the Repository**
+   ```bash
+   git clone git@github.com:childrens-bti/impact-trial.git
+   cd impact-trial
+   ```
+
+2. **Download Data**
+   Follow the instructions in the `README.md` of the repository to set up AWS SSO and download the necessary data files.
+
+3. **Run the Analyses**
+   - For translation analysis, use the CWL files located in the `cwl/translation` directory.
+   - For splicing-translation analysis, use the CWL files in the `cwl/splicing-translation` directory.
+
+### Running the CWL Workflows
+
+To execute the translation analysis, run the following command:
+
+```bash
+cwltool cwl/translation/translation.cwl --input <input_file> --output <output_file>
+```
+
+For splicing-translation analysis, use:
+
+```bash
+cwltool cwl/splicing-translation/splicing_translation.cwl --input <input_file> --output <output_file>
+```
+
+### Scripts Overview
+
+- **Translation Scripts**: Located in `scripts/translation/`, these include shell scripts and Python scripts for processing SNV and fusion data.
+- **Splicing-Translation Script**: The R Markdown script in `scripts/splicing-translation/` processes skipped exon events to generate peptide sequences.
+
+### Additional Information
+
+Refer to the individual CWL files for detailed specifications of inputs and outputs for each analysis step. The analyses directory is reserved for additional analysis files related to the project.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## impact-trial README:
 
 ## To reproduce the code in this repository:
 This repository contains a docker image and code used to conduct analyses for the project.
