@@ -20,14 +20,27 @@ __pycache__/
 *.out
 
 # Output and result files
+*.bam
+*.bai
 *.vcf
 *.gz
 *.zip
-outputs/
-params/
+outputs/*
+!outputs/.gitkeep
+params/*
+!params/.gitkeep
 test/*
-logs/
+!test/.gitkeep
+logs/*
+!logs/.gitkeep
+sbg-hints/* 
+!sbg-hints/.gitkeep
 
-# input
+# harmonized data
 data/*
+!data/.gitkeep
+# manifest files
+# manifests/*
+# !manifests/.gitkeep
 
+analyses/
