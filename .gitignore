@@ -28,7 +28,6 @@ outputs/*
 params/*
 !params/.gitkeep
 test/*
-!test/.gitkeep
 logs/*
 !logs/.gitkeep
 sbg-hints/* 
@@ -38,7 +37,6 @@ sbg-hints/*
 data/*
 !data/.gitkeep
 # manifest files
-# manifests/*
-# !manifests/.gitkeep
+manifests/*
+!manifests/.gitkeep
 
-analyses/
