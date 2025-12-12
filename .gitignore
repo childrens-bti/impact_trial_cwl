@@ -27,6 +27,12 @@ outputs/*
 !outputs/.gitkeep
 params/*
 !params/.gitkeep
+workflows/*
+!workflows/.gitkeep
+tools/*
+!tools/.gitkeep
+scripts/*
+!scripts/.gitkeep
 test/*
 logs/*
 !logs/.gitkeep
