@@ -94,8 +94,27 @@ RUN curl -fsSL https://github.com/shenwei356/seqkit/releases/download/v2.10.1/se
     chmod +x /usr/local/bin/seqkit
 
 # =============================================================================
+# Install Pipeline Scripts
+# =============================================================================
+WORKDIR /opt/impact_trial
+
+# Copy scripts (exclude input and results directories)
+COPY scripts/create-gtex-matrices/*.R /opt/impact_trial/scripts/create-gtex-matrices/
+COPY scripts/splice-junction-filtering/*.R /opt/impact_trial/scripts/splice-junction-filtering/
+COPY scripts/translation/*.py /opt/impact_trial/scripts/translation/
+COPY scripts/translation/*.R /opt/impact_trial/scripts/translation/
+COPY scripts/translation/*.sh /opt/impact_trial/scripts/translation/
+COPY scripts/translation/util/ /opt/impact_trial/scripts/translation/util/
+
+# Make scripts executable
+RUN find /opt/impact_trial/scripts -type f \( -name "*.py" -o -name "*.R" -o -name "*.sh" \) -exec chmod +x {} \;
+
+# Add scripts to PATH
+ENV PATH="/opt/impact_trial/scripts/create-gtex-matrices:/opt/impact_trial/scripts/splice-junction-filtering:/opt/impact_trial/scripts/translation:${PATH}"
+
+# =============================================================================
 # Finalize
 # =============================================================================
-WORKDIR /workspace
+WORKDIR /data
 
 CMD ["/bin/bash"]

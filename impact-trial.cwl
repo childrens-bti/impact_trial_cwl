@@ -1,4 +1,3 @@
-#!/usr/bin/env cwl-runner
 
 cwlVersion: v1.2
 class: Workflow
@@ -48,6 +47,9 @@ inputs:
   histologies_file:
     type: File
     doc: "GTEx histologies metadata"
+  gtex_read_counts:
+    type: File
+    doc: "GTEx input read counts"
   
   # Tumor splice event files (Step 2)
   tumor_se_rmats:
@@ -100,26 +102,6 @@ inputs:
   uniprot_fasta:
     type: File
     doc: "UniProt canonical proteome FASTA"
-  
-  # Script files
-  create_gtex_matrices_script:
-    type: File
-    doc: "R script for creating GTEx matrices"
-  filter_splice_events_script:
-    type: File
-    doc: "R script for filtering splice events"
-  snv_translate_script:
-    type: File
-    doc: "Python script for SNV translation"
-  star_fusion_translate_script:
-    type: File
-    doc: "Python script for STAR-Fusion translation"
-  arriba_fusion_translate_script:
-    type: File
-    doc: "Python script for Arriba fusion translation"
-  translate_splice_events_script:
-    type: File
-    doc: "R script for splice event translation"
 
 outputs:
   # Final outputs
@@ -182,12 +164,12 @@ steps:
   create_gtex_matrices:
     run: tools/create-gtex-matrices.cwl
     in:
-      script: create_gtex_matrices_script
       gtex_se_rmats: gtex_se_rmats
       gtex_ri_rmats: gtex_ri_rmats
       gtex_a3ss_rmats: gtex_a3ss_rmats
       gtex_a5ss_rmats: gtex_a5ss_rmats
       histologies_file: histologies_file
+      gtex_read_counts: gtex_read_counts
     out:
       - gtex_se_junction_matrix
       - gtex_se_target_matrix
@@ -200,7 +182,6 @@ steps:
   filter_splice_events:
     run: tools/filter-splice-events.cwl
     in:
-      script: filter_splice_events_script
       sample_id: sample_id
       tumor_se_rmats: tumor_se_rmats
       tumor_ri_rmats: tumor_ri_rmats
@@ -219,7 +200,6 @@ steps:
   snv_translate:
     run: tools/snv-translate.cwl
     in:
-      script: snv_translate_script
       maf_file: maf_file
     out:
       - snv_peptides
@@ -228,7 +208,6 @@ steps:
   star_fusion_translate:
     run: tools/star-fusion-translate.cwl
     in:
-      script: star_fusion_translate_script
       star_fusion_file: star_fusion_file
       gtex_normals: gtex_star_normals
       annofuse_filter: annofuse_filter
@@ -239,7 +218,6 @@ steps:
   arriba_fusion_translate:
     run: tools/arriba-fusion-translate.cwl
     in:
-      script: arriba_fusion_translate_script
       arriba_fusion_file: arriba_fusion_file
       gtex_normals: gtex_arriba_normals
       annofuse_filter: annofuse_filter
@@ -250,7 +228,6 @@ steps:
   translate_splice_events:
     run: tools/translate-splice-events.cwl
     in:
-      script: translate_splice_events_script
       sample_id: sample_id
       tumor_specific_splice_products: filter_splice_events/tumor_specific_splice_products
       genome_fasta: genome_fasta
