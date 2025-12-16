@@ -106,8 +106,10 @@ COPY scripts/translation/*.R /opt/impact_trial/scripts/translation/
 COPY scripts/translation/*.sh /opt/impact_trial/scripts/translation/
 COPY scripts/translation/util/ /opt/impact_trial/scripts/translation/util/
 
-# Make scripts executable
-RUN find /opt/impact_trial/scripts -type f \( -name "*.py" -o -name "*.R" -o -name "*.sh" \) -exec chmod +x {} \;
+# Make scripts executable and readable
+RUN find /opt/impact_trial/scripts -type f \( -name "*.py" -o -name "*.R" -o -name "*.sh" \) -exec chmod 755 {} \; && \
+    find /opt/impact_trial/scripts -type d -exec chmod 755 {} \; && \
+    chown -R 1000:1000 /opt/impact_trial/scripts
 
 # Add scripts to PATH
 ENV PATH="/opt/impact_trial/scripts/create-gtex-matrices:/opt/impact_trial/scripts/splice-junction-filtering:/opt/impact_trial/scripts/translation:${PATH}"
