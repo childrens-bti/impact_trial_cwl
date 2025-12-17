@@ -113,7 +113,7 @@ get_tumor_specific_targets <- function(df,
 }
 
 # Load SE rMATS file and define splice, target, and junction IDs
-tumor_se_rmats <- read_tsv(tumor_se_jc_file) %>%
+tumor_se_rmats <- read_tsv(tumor_se_jc_file, show_col_types = FALSE) %>%
   dplyr::mutate(up_incl_jc = glue::glue("{chr}:{upstreamES}-{upstreamEE}_{exonStart_0base}-{exonEnd}"),
                 down_incl_jc = glue::glue("{chr}:{exonStart_0base}-{exonEnd}_{downstreamES}-{downstreamEE}"),
                 target = glue::glue("{chr}:{exonStart_0base}_{exonEnd}"),
@@ -160,8 +160,7 @@ se_junction_mat <- tumor_se_rmats %>%
   distinct(junction, .keep_all = TRUE) %>%
   # for rare cases of duplicated junctions, calculate median count
   group_by(sample_id, geneSymbol, strand, junction) %>%
-  summarise(junction_count = median(junction_ct)) %>%
-  ungroup() %>%
+  summarise(junction_count = median(junction_ct), .groups = "drop") %>%
   # only retain junctions with non-zero counts
   dplyr::filter(junction_count != 0)
 
@@ -176,15 +175,14 @@ se_target_mat <- tumor_se_rmats %>%
                 target, target_count) %>%
   # for rare cases of duplicated junctions, calculate median count
   group_by(sample_id, geneSymbol, strand, target) %>%
-  summarise(target_count = median(target_count)) %>%
-  ungroup()
+  summarise(target_count = median(target_count), .groups = "drop")
 
 # calculate junction specificity
 se_target_df <- get_tumor_specific_targets(se_target_mat,
                                            gtex_target_df)
 
 # Load RI rMATS file and define splice, target, and junction IDs
-tumor_ri_rmats <- read_tsv(tumor_ri_jc_file) %>%
+tumor_ri_rmats <- read_tsv(tumor_ri_jc_file, show_col_types = FALSE) %>%
   dplyr::mutate(up_incl_jc = glue::glue("{chr}:{upstreamES}-{upstreamEE}_{upstreamEE}-{downstreamES}"),
                 down_incl_jc = glue::glue("{chr}:{upstreamEE}-{downstreamES}_{downstreamES}-{downstreamEE}"),
                 target = glue::glue("{chr}:{upstreamEE}_{downstreamES}"),
@@ -228,8 +226,7 @@ ri_junction_mat <- tumor_ri_rmats %>%
   distinct(junction, .keep_all = TRUE) %>%
   # for rare cases of duplicated junctions, calculate median count
   group_by(sample_id, geneSymbol, strand, junction) %>%
-  summarise(junction_count = median(junction_ct)) %>%
-  ungroup() %>%
+  summarise(junction_count = median(junction_ct), .groups = "drop") %>%
   # remove junctions with zero counts
   dplyr::filter(!junction %in% se_junction_mat$junction,
                 junction_count > 0)
@@ -256,7 +253,7 @@ ri_target_df <- get_tumor_specific_targets(ri_target_mat,
                                            gtex_intron_df)
 
 # A3SS events
-tumor_a3ss_rmats <- read_tsv(tumor_a3ss_jc_file) %>%
+tumor_a3ss_rmats <- read_tsv(tumor_a3ss_jc_file, show_col_types = FALSE) %>%
   dplyr::filter(long_to_flanking_count != 0 | short_to_flanking_count != 0) %>%
   dplyr::mutate(long_incl_jc = case_when(
     strand == "+" ~ glue::glue("{chr}:{flankingES}-{flankingEE}_{longExonStart_0base}-{longExonEnd}"),
@@ -292,8 +289,7 @@ a3ss_junction_mat <- tumor_a3ss_rmats %>%
   distinct(junction, .keep_all = TRUE) %>%
   # for rare cases of duplicated junctions, calculate median count
   group_by(sample_id, geneSymbol, strand, junction) %>%
-  summarise(junction_count = median(junction_ct)) %>%
-  ungroup() %>%
+  summarise(junction_count = median(junction_ct), .groups = "drop") %>%
   dplyr::filter(!junction %in% c(se_junction_mat$junction,
                                  ri_junction_mat$junction),
                 junction_count > 0)
@@ -303,7 +299,7 @@ a3ss_junction_df <- get_tumor_specific_junctions(a3ss_junction_mat,
                                                  a3ss_gtex_junction_df)
 
 # A5SS
-tumor_a5ss_rmats <- read_tsv(tumor_a5ss_jc_file) %>%
+tumor_a5ss_rmats <- read_tsv(tumor_a5ss_jc_file, show_col_types = FALSE) %>%
   dplyr::filter(long_to_flanking_count != 0 | short_to_flanking_count != 0) %>%
   dplyr::mutate(long_incl_jc = case_when(
     strand == "+" ~ glue::glue("{chr}:{longExonStart_0base}-{longExonEnd}_{flankingES}-{flankingEE}"),
@@ -339,8 +335,7 @@ a5ss_junction_mat <- tumor_a5ss_rmats %>%
   distinct(junction, .keep_all = TRUE) %>%
   # for rare cases of duplicated junctions, calculate median count
   group_by(sample_id, geneSymbol, strand, junction) %>%
-  summarise(junction_count = median(junction_ct)) %>%
-  ungroup() %>%
+  summarise(junction_count = median(junction_ct), .groups = "drop") %>%
   dplyr::filter(!junction %in% c(se_junction_mat$junction,
                                  ri_junction_mat$junction,
                                  a3ss_junction_mat$junction),
