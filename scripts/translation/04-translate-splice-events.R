@@ -7,7 +7,6 @@
 # This script performs in silico translation of tumor-specific splice products in an ORF-unaware manner to retain the maximum number of potentially translated peptides that meet a specified AA length threshold. 
 
 ### Load packages
-library(rprojroot)
 library(tidyverse)
 library(Biostrings)
 library(rtracklayer)
@@ -30,17 +29,16 @@ n_flank_bases <- opt$n_flank_bases
 sample <- opt$sample_id
 
 ### Set directory paths
-root_dir <- find_root(has_dir(".git"))
-data_dir <- file.path(root_dir, "data")
-analysis_dir <- file.path(root_dir, "analyses", "translation")
-results_dir <- file.path(analysis_dir, "results")
+# Use current working directory (CWL stages files here)
+# Outputs will be written directly to current directory
 
-source(file.path(analysis_dir, "util", "get_seq.R"))
-source(file.path(analysis_dir, "util", "translate_all_phases.R"))
+# Source utility functions from Docker image
+source("/opt/impact_trial/scripts/translation/util/get_seq.R")
+source("/opt/impact_trial/scripts/translation/util/translate_all_phases.R")
 
-### Input genome and output
-genome_fa <- file.path(data_dir, "GRCh38.primary_assembly.genome.fa.gz")
-output_fasta <- file.path(results_dir, glue::glue("{sample}_tumor_specific_splice_event_peptides.fasta"))
+### Input genome and output (file staged in current directory by CWL)
+genome_fa <- "GRCh38.primary_assembly.genome.fa.gz"
+output_fasta <- glue::glue("{sample}_tumor_specific_splice_event_peptides.fasta")
 
 genome <- readDNAStringSet(genome_fa)
 names(genome) <- sub(" .*$", "", names(genome))
@@ -212,9 +210,9 @@ peptides <- do.call(c, peptide_list)
 writeXStringSet(peptides, filepath = output_fasta, format = "fasta")
 
 write_tsv(junction_report_log,
-          file.path(results_dir, glue::glue("{sample}-tumor-specific-splice-junction-translation-report.tsv")))
+          glue::glue("{sample}-tumor-specific-splice-junction-translation-report.tsv"))
 write_tsv(junction_report_log,
-          file.path(results_dir, glue::glue("{sample}-tumor-specific-splice-target-translation-report.tsv")))
+          glue::glue("{sample}-tumor-specific-splice-target-translation-report.tsv"))
 
 # Session info
 

@@ -81,4 +81,4 @@ outputs:
   tumor_specific_splice_products:
     type: File
     outputBinding:
-      glob: "results/$(inputs.sample_id)-tumor-specific-splice-products.tsv"
+      glob: "$(inputs.sample_id)-tumor-specific-splice-products.tsv"

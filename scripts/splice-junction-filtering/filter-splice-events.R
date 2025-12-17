@@ -28,27 +28,19 @@ tumor_a5ss_jc_file <- opt$tumor_a5ss_rmats
 sample_id <- opt$sample_id
 
 ### Set directory paths
-root_dir <- rprojroot::find_root(rprojroot::has_dir(".git"))
-data_dir <- file.path(root_dir, "data")
-analysis_dir <- file.path(root_dir, "analyses", "splice-junction-filtering")
-results_dir <- file.path(analysis_dir, "results")
+# Use current working directory (CWL stages files here)
+# Outputs will be written directly to current directory
 
-# GTEx file paths
-se_gtex_junction_mat_file <- file.path(data_dir,
-                                       "gtex-se-junction-mat-raw.qs2")
-se_gtex_target_mat_file <- file.path(data_dir,
-                                     "gtex-se-target-mat-raw.qs2")
+# GTEx file paths (files are staged in current directory by CWL)
+se_gtex_junction_mat_file <- "gtex-se-junction-mat-raw.qs2"
+se_gtex_target_mat_file <- "gtex-se-target-mat-raw.qs2"
 
-ri_gtex_junction_mat_file <- file.path(data_dir,
-                                       "gtex-ri-junction-mat-raw.qs2")
-ri_gtex_intron_mat_file <- file.path(data_dir,
-                                     "gtex-ri-target-mat-raw.qs2")
+ri_gtex_junction_mat_file <- "gtex-ri-junction-mat-raw.qs2"
+ri_gtex_intron_mat_file <- "gtex-ri-target-mat-raw.qs2"
 
-a3ss_gtex_junction_mat_file <- file.path(data_dir,
-                                         "gtex-a3ss-junction-mat-raw.qs2")
+a3ss_gtex_junction_mat_file <- "gtex-a3ss-junction-mat-raw.qs2"
 
-a5ss_gtex_junction_mat_file <- file.path(data_dir,
-                                         "gtex-a5ss-junction-mat-raw.qs2")
+a5ss_gtex_junction_mat_file <- "gtex-a5ss-junction-mat-raw.qs2"
 
 ## functions for determining splice event specificity
 
@@ -533,5 +525,4 @@ merged_junction_df <- merged_junction_df %>%
 
 # save to output
 write_tsv(merged_junction_df,
-          file.path(results_dir,
-                    glue::glue("{sample_id}-tumor-specific-splice-products.tsv")))
+          glue::glue("{sample_id}-tumor-specific-splice-products.tsv"))

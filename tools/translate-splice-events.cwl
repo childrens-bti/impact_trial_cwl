@@ -52,4 +52,4 @@ outputs:
   splice_peptides:
     type: File
     outputBinding:
-      glob: "results/$(inputs.sample_id)_tumor_specific_splice_event_peptides.fasta"
+      glob: "$(inputs.sample_id)_tumor_specific_splice_event_peptides.fasta"
