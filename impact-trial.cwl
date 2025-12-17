@@ -53,6 +53,10 @@ inputs:
     type: File
     doc: "Pre-computed GTEx A5SS junction matrix"
   
+  gencode_gtf:
+    type: File
+    doc: "GENCODE gene annotation GTF file"
+  
   # Tumor splice event files
   tumor_se_rmats:
     type: File
@@ -176,6 +180,7 @@ steps:
       gtex_ri_target_matrix: gtex_ri_target_matrix
       gtex_a3ss_junction_matrix: gtex_a3ss_junction_matrix
       gtex_a5ss_junction_matrix: gtex_a5ss_junction_matrix
+      gencode_gtf: gencode_gtf
     out:
       - tumor_specific_splice_products
   

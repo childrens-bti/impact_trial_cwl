@@ -481,9 +481,8 @@ merged_junction_df <- merged_junction_df %>%
   dplyr::mutate(start_annotated = NA_character_,
                 end_annotated = NA_character_)
   
-# load gencode GTF
-gtf <- rtracklayer::import(file.path(data_dir,
-                                     "gencode.v39.primary_assembly.annotation.gtf.gz"))
+# load gencode GTF (file staged in current directory by CWL)
+gtf <- rtracklayer::import("gencode.v39.primary_assembly.annotation.gtf.gz")
 gtf_df <- data.frame(gtf)
 
 # determine annotation of junction sites

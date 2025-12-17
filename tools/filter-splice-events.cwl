@@ -17,6 +17,7 @@ requirements:
       - $(inputs.gtex_ri_target_matrix)
       - $(inputs.gtex_a3ss_junction_matrix)
       - $(inputs.gtex_a5ss_junction_matrix)
+      - $(inputs.gencode_gtf)
 
 baseCommand: [Rscript, --vanilla, /opt/impact_trial/scripts/splice-junction-filtering/filter-splice-events.R]
 
@@ -76,6 +77,10 @@ inputs:
   gtex_a5ss_junction_matrix:
     type: File
     doc: "GTEx A5SS junction matrix from previous step"
+  
+  gencode_gtf:
+    type: File
+    doc: "GENCODE gene annotation GTF file"
 
 outputs:
   tumor_specific_splice_products:
