@@ -14,36 +14,13 @@ requirements:
       - $(inputs.uniprot_fasta)
       - $(inputs.custom_fasta)
 
-baseCommand: [bash, -c]
+baseCommand: [bash, /opt/impact_trial/scripts/translation/06-filter-fasta.sh]
 
 arguments:
-  - valueFrom: |
-      set -e
-      # Build BLAST database if needed
-      if [ ! -f "uniprot_db.pin" ]; then
-          makeblastdb -in $(inputs.uniprot_fasta.path) -dbtype prot -out uniprot_db
-      fi
-      
-      # Run BLAST
-      blastp -query $(inputs.custom_fasta.path) \
-             -db uniprot_db \
-             -out blast_results.tsv \
-             -outfmt "6 qseqid sseqid pident length qlen slen"
-      
-      # Extract 100% matches
-      awk '$3 == 100 && $4 == $5 {print $1}' blast_results.tsv | sort -u > full_matches.txt
-      
-      # Count statistics
-      total=$(grep -c "^>" $(inputs.custom_fasta.path))
-      matches=$(wc -l < full_matches.txt)
-      remaining=$(( total - matches ))
-      
-      echo "Total peptides: $total"
-      echo "Filtered out (100% UniProt matches): $matches"
-      echo "Remaining peptides: $remaining"
-      
-      # Filter peptides using seqkit
-      seqkit grep -v -f full_matches.txt $(inputs.custom_fasta.path) > custom_filtered.fasta
+  - prefix: --custom_fasta
+    valueFrom: $(inputs.custom_fasta.path)
+  - prefix: --uniprot_fasta
+    valueFrom: $(inputs.uniprot_fasta.path)
 
 inputs:
   custom_fasta:
