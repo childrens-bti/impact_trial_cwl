@@ -42,7 +42,7 @@ manifests/*
 !manifests/.gitkeep
 
 # tmporary shell scripts
-/*.sh
+run_data.sh
 
 # cwltool temp files
 .cwl-tmp/
