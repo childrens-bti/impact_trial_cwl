@@ -11,35 +11,41 @@ The workflow performs tumor-specific peptide discovery from multiple genomic alt
 
 ### Pipeline Steps
 
-1. **Create GTEx Matrices** - Generate junction count matrices from GTEx reference data
-2. **Filter Splice Events** - Identify tumor-specific splice events relative to GTEx
-3. **Translate SNVs** - Convert SNVs/Indels to peptide sequences
-4. **Translate STAR-Fusion** - Generate peptides from STAR-Fusion predictions
-5. **Translate Arriba Fusions** - Generate peptides from Arriba predictions
-6. **Translate Splice Events** - Convert splice events to peptides
-7. **Merge FASTAs** - Combine all peptide sequences
-8. **Filter Against UniProt** - Remove peptides with 100% UniProt matches
+1. **Filter Splice Events** - Identify tumor-specific splice events relative to pre-computed GTEx matrices
+2. **Translate SNVs** - Convert SNVs/Indels to peptide sequences
+3. **Translate STAR-Fusion** - Generate peptides from STAR-Fusion predictions
+4. **Translate Arriba Fusions** - Generate peptides from Arriba predictions
+5. **Translate Splice Events** - Convert splice events to peptides
+6. **Merge FASTAs** - Combine all peptide sequences
+7. **Filter Against UniProt** - Remove peptides with 100% UniProt matches
+
+**Note:** This workflow uses pre-computed GTEx junction and target matrices to avoid the memory-intensive matrix generation step (previously Step 1, requiring 65-70GB RAM).
 
 ## Directory Structure
 
 ```
 .
-├── impact-trial.cwl                      # Main workflow
+├── impact-trial.cwl                      # Main workflow (7 steps)
 ├── params/
 │   └── impact-trial-inputs.yml           # Example input parameters
 ├── tools/
-│   ├── create-gtex-matrices.cwl          # Step 1 CWL tool
-│   ├── filter-splice-events.cwl          # Step 2 CWL tool
-│   ├── snv-translate.cwl                 # Step 3 CWL tool
-│   ├── star-fusion-translate.cwl         # Step 4 CWL tool
-│   ├── arriba-fusion-translate.cwl       # Step 5 CWL tool
-│   ├── translate-splice-events.cwl       # Step 6 CWL tool
-│   ├── merge-fasta.cwl                   # Step 7 CWL tool
-│   └── filter-fasta.cwl                  # Step 8 CWL tool
+│   ├── filter-splice-events.cwl          # Step 1 CWL tool
+│   ├── snv-translate.cwl                 # Step 2 CWL tool
+│   ├── star-fusion-translate.cwl         # Step 3 CWL tool
+│   ├── arriba-fusion-translate.cwl       # Step 4 CWL tool
+│   ├── translate-splice-events.cwl       # Step 5 CWL tool
+│   ├── merge-fasta.cwl                   # Step 6 CWL tool
+│   └── filter-fasta.cwl                  # Step 7 CWL tool
 ├── scripts/
-│   ├── create-gtex-matrices/
 │   ├── splice-junction-filtering/
+│   │   └── filter-splice-events.R
 │   └── translation/
+│       ├── 01-snv-translate.py
+│       ├── 02-star-fusion-translate.py
+│       ├── 03-arriba-fusion-translate.py
+│       ├── 04-translate-splice-events.R
+│       ├── 05-merge-fasta.sh
+│       └── 06-filter-fasta.sh
 ├── data/                                  # Input data files
 └── outputs/                               # Workflow outputs
 ```
@@ -65,7 +71,20 @@ bash download_data.sh
 Edit `params/impact-trial-inputs.yml` to specify your input files and parameters:
 
 ```yaml
-sample_id: "YOUR_SAMPLE_ID"
+# Sample identifiers
+dna_sample_id: "YOUR_DNA_SAMPLE_ID"  # For MAF/SNV outputs
+rna_sample_id: "YOUR_RNA_SAMPLE_ID"  # For fusion/splice outputs
+
+# Pre-computed GTEx matrices (required)
+se_gtex_junction_mat:
+  class: File
+  path: ../data/gtex-se-junction-mat-raw.qs2
+se_gtex_target_mat:
+  class: File
+  path: ../data/gtex-se-target-mat-raw.qs2
+# ... (see params/impact-trial-inputs.yml for full example)
+
+# Tumor data files
 maf_file:
   class: File
   path: ../data/your_sample.maf
@@ -77,57 +96,75 @@ maf_file:
 Using cwltool:
 
 ```bash
-cwltool impact-trial.cwl params/impact-trial-inputs.yml
+cwltool --outdir outputs/patient_1 impact-trial.cwl params/impact-trial-inputs.yml
 ```
 
-Using toil-cwl-runner:
+With additional options for temporary file management:
 
 ```bash
-toil-cwl-runner impact-trial.cwl params/impact-trial-inputs.yml
+cwltool --leave-tmpdir --tmpdir-prefix ./.cwl-tmp/ --tmp-outdir-prefix ./.cwl-out/ \
+    --outdir outputs/patient_1 impact-trial.cwl params/impact-trial-inputs.yml
 ```
 
 ## Outputs
 
 The workflow produces:
 
-- **final_filtered_fasta** - Filtered tumor-specific peptide FASTA (primary output)
+### Primary Outputs
+- **final_filtered_fasta** - Filtered tumor-specific peptide FASTA (peptides unique vs UniProt)
 - **merged_unfiltered_fasta** - All peptides before UniProt filtering
-- **blast_results** - BLAST alignment results
-- **gtex_matrices** - GTEx junction and target count matrices
-- **tumor_specific_splice_products** - Filtered splice events TSV
-- Individual peptide FASTAs from each translation step
+- **blast_results** - BLAST alignment results against UniProt
+- **full_matches** - List of peptide IDs with 100% UniProt matches (filtered out)
+
+### Intermediate Outputs
+- **tumor_specific_splice_products** - Filtered tumor-specific splice events TSV
+- **splice_junction_translation_report** - Translation report for splice junctions
+- **splice_target_translation_report** - Translation report for splice targets
+
+All outputs are written directly to the specified output directory (e.g., `outputs/patient_1/`).
 
 ## Input Requirements
 
 ### Required Files
 
-1. **GTEx Reference Data**
-   - rMATS merged files (SE, RI, A3SS, A5SS)
-   - Histologies metadata
-   - Fusion normals (STAR and Arriba)
+1. **Pre-computed GTEx Matrices** (6 files)
+   - SE junction matrix: `gtex-se-junction-mat-raw.qs2`
+   - SE target matrix: `gtex-se-target-mat-raw.qs2`
+   - RI junction matrix: `gtex-ri-junction-mat-raw.qs2`
+   - RI target matrix: `gtex-ri-target-mat-raw.qs2`
+   - A3SS junction matrix: `gtex-a3ss-junction-mat-raw.qs2`
+   - A5SS junction matrix: `gtex-a5ss-junction-mat-raw.qs2`
 
-2. **Tumor Data**
+2. **GTEx Reference Data**
+   - Fusion normals (STAR and Arriba)
+   - annoFuse filter file
+
+3. **Tumor Data**
    - Somatic MAF file
    - Fusion predictions (STAR-Fusion and Arriba)
    - rMATS junction count files (SE, RI, A3SS, A5SS)
-   - annoFuse filter file
 
-3. **Reference Genomes/Proteomes**
+4. **Reference Genomes/Proteomes**
    - GRCh38 primary assembly FASTA
-   - UniProt canonical proteome
+   - GENCODE GTF annotation (e.g., gencode.v39.primary_assembly.annotation.gtf.gz)
+   - Ensembl proteome FASTA
+   - RefSeq proteome FASTA
+   - CDS reference FASTA
+   - UniProt canonical proteome FASTA
 
 ### Parameters
 
-- `sample_id` - Sample identifier
+- `dna_sample_id` - DNA sample identifier (for MAF/SNV outputs)
+- `rna_sample_id` - RNA sample identifier (for fusion/splice outputs)
 - `min_peptide_length` - Minimum amino acid length (default: 8)
 - `n_flank_bases` - Flanking nucleotides for splice junctions (default: 20)
 
-## Docker Images
+## Docker Image
 
-The workflow uses the following Docker images:
-- `rocker/tidyverse:latest` - For R scripts
-- `python:3.11` - For Python scripts
-- `ncbi/blast:latest` - For BLAST filtering
+The workflow uses a unified Docker image containing all required dependencies:
+- **Image:** `pgc-images.sbgenomics.com/childrens-bti/impact_trial_cwl:latest`
+- **Base:** `rocker/tidyverse:4.4.0`
+- **Includes:** R packages (tidyverse, qs2, Biostrings, rtracklayer, optparse), Python 3.11, rpg 2.0.3, NCBI BLAST+, bedtools, samtools, seqkit
 
 ## Development
 
