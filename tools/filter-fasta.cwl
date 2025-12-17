@@ -41,3 +41,8 @@ outputs:
     type: File
     outputBinding:
       glob: "blast_results.tsv"
+  
+  full_matches:
+    type: File
+    outputBinding:
+      glob: "full_matches.txt"

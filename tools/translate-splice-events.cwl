@@ -53,3 +53,13 @@ outputs:
     type: File
     outputBinding:
       glob: "$(inputs.sample_id)_tumor_specific_splice_event_peptides.fasta"
+  
+  junction_translation_report:
+    type: File
+    outputBinding:
+      glob: "$(inputs.sample_id)-tumor-specific-splice-junction-translation-report.tsv"
+  
+  target_translation_report:
+    type: File
+    outputBinding:
+      glob: "$(inputs.sample_id)-tumor-specific-splice-target-translation-report.tsv"

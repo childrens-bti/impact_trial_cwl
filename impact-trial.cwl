@@ -138,11 +138,26 @@ outputs:
     outputSource: filter_fasta/blast_results
     doc: "BLAST results against UniProt"
   
+  full_matches:
+    type: File
+    outputSource: filter_fasta/full_matches
+    doc: "List of peptide IDs with 100% UniProt matches"
+  
   # Intermediate outputs
   tumor_specific_splice_products:
     type: File
     outputSource: filter_splice_events/tumor_specific_splice_products
     doc: "Filtered tumor-specific splice products"
+  
+  splice_junction_translation_report:
+    type: File
+    outputSource: translate_splice_events/junction_translation_report
+    doc: "Translation report for splice junctions"
+  
+  splice_target_translation_report:
+    type: File
+    outputSource: translate_splice_events/target_translation_report
+    doc: "Translation report for splice targets"
   
   snv_peptides:
     type: File
@@ -229,6 +244,8 @@ steps:
       n_flank_bases: n_flank_bases
     out:
       - splice_peptides
+      - junction_translation_report
+      - target_translation_report
   
   # Step 6: Merge all peptide FASTAs
   merge_fasta:
@@ -250,3 +267,4 @@ steps:
     out:
       - filtered_fasta
       - blast_results
+      - full_matches
