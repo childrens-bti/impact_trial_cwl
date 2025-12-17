@@ -44,3 +44,6 @@ manifests/*
 # tmporary shell scripts
 *.sh
 
+# cwltool temp files
+.cwl-tmp/
+.cwl-out/

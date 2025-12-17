@@ -31,45 +31,25 @@ inputs:
     type: string
     doc: "Sample identifier"
   
-  # GTEx reference files (Step 1) - TEMPORARILY COMMENTED OUT
-  # gtex_se_rmats:
-  #   type: File
-  #   doc: "GTEx rMATS SE merged file"
-  # gtex_ri_rmats:
-  #   type: File
-  #   doc: "GTEx rMATS RI merged file"
-  # gtex_a3ss_rmats:
-  #   type: File
-  #   doc: "GTEx rMATS A3SS merged file"
-  # gtex_a5ss_rmats:
-  #   type: File
-  #   doc: "GTEx rMATS A5SS merged file"
-  # histologies_file:
-  #   type: File
-  #   doc: "GTEx histologies metadata"
-  # gtex_read_counts:
-  #   type: File
-  #   doc: "GTEx input read counts"
-  
-  # Pre-computed GTEx matrices (temporarily using these instead of Step 1)
-  gtex_se_junction_matrix:
+  # GTEx reference files (Step 1)
+  gtex_se_rmats:
     type: File
-    doc: "GTEx SE junction matrix"
-  gtex_se_target_matrix:
+    doc: "GTEx rMATS SE merged file"
+  gtex_ri_rmats:
     type: File
-    doc: "GTEx SE target matrix"
-  gtex_ri_junction_matrix:
+    doc: "GTEx rMATS RI merged file"
+  gtex_a3ss_rmats:
     type: File
-    doc: "GTEx RI junction matrix"
-  gtex_ri_target_matrix:
+    doc: "GTEx rMATS A3SS merged file"
+  gtex_a5ss_rmats:
     type: File
-    doc: "GTEx RI target matrix"
-  gtex_a3ss_junction_matrix:
+    doc: "GTEx rMATS A5SS merged file"
+  histologies_file:
     type: File
-    doc: "GTEx A3SS junction matrix"
-  gtex_a5ss_junction_matrix:
+    doc: "GTEx histologies metadata"
+  gtex_read_counts:
     type: File
-    doc: "GTEx A5SS junction matrix"
+    doc: "GTEx input read counts"
   
   # Tumor splice event files
   tumor_se_rmats:
@@ -153,6 +133,19 @@ outputs:
     doc: "BLAST results against UniProt"
   
   # Intermediate outputs
+  gtex_matrices:
+    type:
+      type: array
+      items: File
+    outputSource:
+      - create_gtex_matrices/gtex_se_junction_matrix
+      - create_gtex_matrices/gtex_se_target_matrix
+      - create_gtex_matrices/gtex_ri_junction_matrix
+      - create_gtex_matrices/gtex_ri_target_matrix
+      - create_gtex_matrices/gtex_a3ss_junction_matrix
+      - create_gtex_matrices/gtex_a5ss_junction_matrix
+    doc: "GTEx junction and target matrices"
+  
   tumor_specific_splice_products:
     type: File
     outputSource: filter_splice_events/tumor_specific_splice_products
@@ -179,25 +172,25 @@ outputs:
     doc: "Splice event-derived peptides"
 
 steps:
-  # Step 1: Create GTEx matrices - TEMPORARILY COMMENTED OUT (memory issue)
-  # create_gtex_matrices:
-  #   run: tools/create-gtex-matrices.cwl
-  #   in:
-  #     gtex_se_rmats: gtex_se_rmats
-  #     gtex_ri_rmats: gtex_ri_rmats
-  #     gtex_a3ss_rmats: gtex_a3ss_rmats
-  #     gtex_a5ss_rmats: gtex_a5ss_rmats
-  #     histologies_file: histologies_file
-  #     gtex_read_counts: gtex_read_counts
-  #   out:
-  #     - gtex_se_junction_matrix
-  #     - gtex_se_target_matrix
-  #     - gtex_ri_junction_matrix
-  #     - gtex_ri_target_matrix
-  #     - gtex_a3ss_junction_matrix
-  #     - gtex_a5ss_junction_matrix
+  # Step 1: Create GTEx matrices
+  create_gtex_matrices:
+    run: tools/create-gtex-matrices.cwl
+    in:
+      gtex_se_rmats: gtex_se_rmats
+      gtex_ri_rmats: gtex_ri_rmats
+      gtex_a3ss_rmats: gtex_a3ss_rmats
+      gtex_a5ss_rmats: gtex_a5ss_rmats
+      histologies_file: histologies_file
+      gtex_read_counts: gtex_read_counts
+    out:
+      - gtex_se_junction_matrix
+      - gtex_se_target_matrix
+      - gtex_ri_junction_matrix
+      - gtex_ri_target_matrix
+      - gtex_a3ss_junction_matrix
+      - gtex_a5ss_junction_matrix
   
-  # Step 2: Filter splice events for tumor specificity (using pre-computed GTEx matrices)
+  # Step 2: Filter splice events for tumor specificity
   filter_splice_events:
     run: tools/filter-splice-events.cwl
     in:
@@ -206,20 +199,12 @@ steps:
       tumor_ri_rmats: tumor_ri_rmats
       tumor_a3ss_rmats: tumor_a3ss_rmats
       tumor_a5ss_rmats: tumor_a5ss_rmats
-      # Using pre-computed matrices temporarily
-      gtex_se_junction_matrix: gtex_se_junction_matrix
-      gtex_se_target_matrix: gtex_se_target_matrix
-      gtex_ri_junction_matrix: gtex_ri_junction_matrix
-      gtex_ri_target_matrix: gtex_ri_target_matrix
-      gtex_a3ss_junction_matrix: gtex_a3ss_junction_matrix
-      gtex_a5ss_junction_matrix: gtex_a5ss_junction_matrix
-      # When Step 1 is re-enabled, change above to:
-      # gtex_se_junction_matrix: create_gtex_matrices/gtex_se_junction_matrix
-      # gtex_se_target_matrix: create_gtex_matrices/gtex_se_target_matrix
-      # gtex_ri_junction_matrix: create_gtex_matrices/gtex_ri_junction_matrix
-      # gtex_ri_target_matrix: create_gtex_matrices/gtex_ri_target_matrix
-      # gtex_a3ss_junction_matrix: create_gtex_matrices/gtex_a3ss_junction_matrix
-      # gtex_a5ss_junction_matrix: create_gtex_matrices/gtex_a5ss_junction_matrix
+      gtex_se_junction_matrix: create_gtex_matrices/gtex_se_junction_matrix
+      gtex_se_target_matrix: create_gtex_matrices/gtex_se_target_matrix
+      gtex_ri_junction_matrix: create_gtex_matrices/gtex_ri_junction_matrix
+      gtex_ri_target_matrix: create_gtex_matrices/gtex_ri_target_matrix
+      gtex_a3ss_junction_matrix: create_gtex_matrices/gtex_a3ss_junction_matrix
+      gtex_a5ss_junction_matrix: create_gtex_matrices/gtex_a5ss_junction_matrix
     out:
       - tumor_specific_splice_products
   
