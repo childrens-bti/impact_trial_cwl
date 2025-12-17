@@ -28,20 +28,27 @@ tumor_a5ss_jc_file <- opt$tumor_a5ss_rmats
 sample_id <- opt$sample_id
 
 ### Set directory paths
-# Use current working directory (CWL stages files here)
-results_dir <- file.path("results")
-dir.create(results_dir, showWarnings = FALSE, recursive = TRUE)
+root_dir <- rprojroot::find_root(rprojroot::has_dir(".git"))
+data_dir <- file.path(root_dir, "data")
+analysis_dir <- file.path(root_dir, "analyses", "splice-junction-filtering")
+results_dir <- file.path(analysis_dir, "results")
 
-# GTEx file paths (files are staged in current directory by CWL)
-se_gtex_junction_mat_file <- "gtex-se-junction-mat-raw.qs2"
-se_gtex_target_mat_file <- "gtex-se-target-mat-raw.qs2"
+# GTEx file paths
+se_gtex_junction_mat_file <- file.path(data_dir,
+                                       "gtex-se-junction-mat-raw.qs2")
+se_gtex_target_mat_file <- file.path(data_dir,
+                                     "gtex-se-target-mat-raw.qs2")
 
-ri_gtex_junction_mat_file <- "gtex-ri-junction-mat-raw.qs2"
-ri_gtex_intron_mat_file <- "gtex-ri-target-mat-raw.qs2"
+ri_gtex_junction_mat_file <- file.path(data_dir,
+                                       "gtex-ri-junction-mat-raw.qs2")
+ri_gtex_intron_mat_file <- file.path(data_dir,
+                                     "gtex-ri-target-mat-raw.qs2")
 
-a3ss_gtex_junction_mat_file <- "gtex-a3ss-junction-mat-raw.qs2"
+a3ss_gtex_junction_mat_file <- file.path(data_dir,
+                                         "gtex-a3ss-junction-mat-raw.qs2")
 
-a5ss_gtex_junction_mat_file <- "gtex-a5ss-junction-mat-raw.qs2"
+a5ss_gtex_junction_mat_file <- file.path(data_dir,
+                                         "gtex-a5ss-junction-mat-raw.qs2")
 
 ## functions for determining splice event specificity
 
@@ -50,25 +57,35 @@ get_tumor_specific_junctions <- function(df,
                                          gtex_mat){
 
   spec_jc_df <- df %>%
+    dplyr::mutate(boundary = unlist(lapply(str_split(junction, "-"), function(x) x[2]))) %>%
     # join gtex junction counts
     left_join(gtex_mat) %>%
     dplyr::mutate(
       # N gtex subgroups w/ mean count < 1 (exclude testis)
       n_low_ct_brain_gtex = rowSums(across(contains(c("Brain")), ~ . < 1, .names = NULL), na.rm = TRUE),
-      n_low_ct_nonbrain_gtex = rowSums(across(!contains(c("^junction", "sample_id", "geneSymbol", "junction_count", "Brain", "Testis")), ~ . < 1, .names = NULL), na.rm = TRUE),
+      n_low_ct_nonbrain_gtex = rowSums(across(!contains(c("^junction", "boundary", "sample_id", "geneSymbol", "strand", "junction_count", "Brain", "Testis")), ~ . < 1, .names = NULL), na.rm = TRUE),
       # N subgroups NA
       n_na_brain_gtex = rowSums(across(contains(c("Brain")), ~ is.na(.), .names = NULL), na.rm = TRUE),
-      n_na_nonbrain_gtex = rowSums(across(!contains(c("^junction", "sample_id", "geneSymbol", "junction_count", "Brain", "Testis")), ~ is.na(.), .names = NULL), na.rm = TRUE)) %>%
+      n_na_nonbrain_gtex = rowSums(across(!contains(c("^junction", "boundary", "sample_id", "geneSymbol", "strand", "junction_count", "Brain", "Testis", "n_low_ct_brain_gtex")), ~ is.na(.), .names = NULL), na.rm = TRUE)) %>%
     
     # determine if junction is tumor-specific
     dplyr::mutate(junction_preference = case_when(
       # Low ct in all brain and non-brain gtex groups with non-NA values
       # Tumor junction ct >= 10
-      n_low_ct_brain_gtex == n_gtex_brain_groups - n_na_brain_gtex & n_low_ct_nonbrain_gtex == n_gtex_nonbrain_groups - n_na_nonbrain_gtex & junction_count >= 10 & n_na_brain_gtex < n_gtex_brain_groups & n_na_nonbrain_gtex < n_gtex_nonbrain_groups ~ "Tumor-specific junction",
+      n_low_ct_brain_gtex == n_gtex_brain_groups - n_na_brain_gtex & n_low_ct_nonbrain_gtex == n_gtex_nonbrain_groups - n_na_nonbrain_gtex & junction_count >= 10 ~ "Tumor-specific junction",
       TRUE ~ "No specificity"
-    )) %>%
-    # retain only tumor-specific junctions
-    dplyr::filter(junction_preference == "Tumor-specific junction")
+    ))
+
+  # pull all boundaries called non-specific 
+  nonspecific_boundaries <- spec_jc_df %>%
+    dplyr::filter(junction_preference == "No specificity") %>%
+    pull(boundary)
+  
+  # retain only tumor-specific junctions
+  spec_jc_df <- spec_jc_df %>%
+    dplyr::filter(junction_preference == "Tumor-specific junction",
+                  # remove cases where boundary called nonspecific as part of another junction
+                  !boundary %in% nonspecific_boundaries)
   
   return(spec_jc_df)
   
@@ -83,17 +100,17 @@ get_tumor_specific_targets <- function(df,
     left_join(gtex_mat) %>%
     dplyr::mutate(
       # N gtex subgroups w/ mean count < 1 (exclude testis)
-      n_zero_ct_brain_gtex = rowSums(across(contains(c("Brain")), ~ . < 1, .names = NULL), na.rm = TRUE),
-      n_zero_ct_nonbrain_gtex = rowSums(across(!contains(c("target", "sample_id", "geneSymbol", "target_count", "Brain", "Testis")), ~ . < 1, .names = NULL), na.rm = TRUE),
+      n_low_ct_brain_gtex = rowSums(across(contains(c("Brain")), ~ . < 1, .names = NULL), na.rm = TRUE),
+      n_low_ct_nonbrain_gtex = rowSums(across(!contains(c("target", "sample_id", "strand", "geneSymbol", "target_count", "Brain", "Testis", "n_low_ct_brain_gtex")), ~ . < 1, .names = NULL), na.rm = TRUE),
       # N subgroups NA
       n_na_brain_gtex = rowSums(across(contains(c("Brain")), ~ is.na(.), .names = NULL), na.rm = TRUE),
-      n_na_nonbrain_gtex = rowSums(across(!contains(c("target", "sample_id", "geneSymbol", "target_count", "Brain", "Testis")), ~ is.na(.), .names = NULL), na.rm = TRUE)) %>%
+      n_na_nonbrain_gtex = rowSums(across(!contains(c("target", "sample_id", "strand", "geneSymbol", "target_count", "Brain", "Testis", "low_ct", "n_na")), ~ is.na(.), .names = NULL), na.rm = TRUE)) %>%
     
     # determine if target is tumor-specific
     dplyr::mutate(target_preference = case_when(
       # Low ct in all brain and non-brain gtex groups with non-NA values
       # Tumor junction ct >= 10
-      n_zero_ct_brain_gtex == n_gtex_brain_groups - n_na_brain_gtex & n_zero_ct_nonbrain_gtex == n_gtex_nonbrain_groups - n_na_nonbrain_gtex & target_count >= 10 & n_na_brain_gtex < n_gtex_brain_groups & n_na_nonbrain_gtex < n_gtex_nonbrain_groups ~ "Tumor-specific target",
+      n_low_ct_brain_gtex == n_gtex_brain_groups - n_na_brain_gtex & n_low_ct_nonbrain_gtex == n_gtex_nonbrain_groups - n_na_nonbrain_gtex & target_count >= 10 ~ "Tumor-specific target",
       TRUE ~ "No specificity"
     )) %>%
     # retain only tumor-specific targets
@@ -222,7 +239,8 @@ ri_junction_mat <- tumor_ri_rmats %>%
   summarise(junction_count = median(junction_ct)) %>%
   ungroup() %>%
   # remove junctions with zero counts
-  dplyr::filter(junction_count > 0)
+  dplyr::filter(!junction %in% se_junction_mat$junction,
+                junction_count > 0)
 
 # calculate junction specificity
 ri_junction_df <- get_tumor_specific_junctions(ri_junction_mat,
@@ -248,9 +266,14 @@ ri_target_df <- get_tumor_specific_targets(ri_target_mat,
 # A3SS events
 tumor_a3ss_rmats <- read_tsv(tumor_a3ss_jc_file) %>%
   dplyr::filter(long_to_flanking_count != 0 | short_to_flanking_count != 0) %>%
-  dplyr::mutate(long_incl_jc = glue::glue("{chr}:{flankingES}-{flankingEE}_{longExonStart_0base}-{longExonEnd}"),
-                short_incl_jc = glue::glue("{chr}:{flankingES}-{flankingEE}_{shortES}-{shortEE}"),
-                sample_id = sample_id) %>%
+  dplyr::mutate(long_incl_jc = case_when(
+    strand == "+" ~ glue::glue("{chr}:{flankingES}-{flankingEE}_{longExonStart_0base}-{longExonEnd}"),
+    strand == "-" ~ glue::glue("{chr}:{longExonStart_0base}-{longExonEnd}_{flankingES}-{flankingEE}"))) %>%
+  dplyr::mutate(short_incl_jc = case_when(
+    strand == "+" ~ glue::glue("{chr}:{flankingES}-{flankingEE}_{shortES}-{shortEE}"),
+    strand == "-" ~ glue::glue("{chr}:{shortES}-{shortEE}_{flankingES}-{flankingEE}")
+  )) %>%
+  dplyr::mutate(sample_id = sample_id) %>%
   # select relevant columns
   dplyr::select(sample_id, geneSymbol, strand,
                 long_incl_jc,
@@ -279,7 +302,9 @@ a3ss_junction_mat <- tumor_a3ss_rmats %>%
   group_by(sample_id, geneSymbol, strand, junction) %>%
   summarise(junction_count = median(junction_ct)) %>%
   ungroup() %>%
-  dplyr::filter(junction_count > 0)
+  dplyr::filter(!junction %in% c(se_junction_mat$junction,
+                                 ri_junction_mat$junction),
+                junction_count > 0)
 
 # calculate junction specificity
 a3ss_junction_df <- get_tumor_specific_junctions(a3ss_junction_mat,
@@ -288,9 +313,14 @@ a3ss_junction_df <- get_tumor_specific_junctions(a3ss_junction_mat,
 # A5SS
 tumor_a5ss_rmats <- read_tsv(tumor_a5ss_jc_file) %>%
   dplyr::filter(long_to_flanking_count != 0 | short_to_flanking_count != 0) %>%
-  dplyr::mutate(long_incl_jc = glue::glue("{chr}:{longExonStart_0base}-{longExonEnd}_{flankingES}-{flankingEE}"),
-                short_incl_jc = glue::glue("{chr}:{shortES}-{shortEE}_{flankingES}-{flankingEE}"),
-                sample_id = sample_id) %>%
+  dplyr::mutate(long_incl_jc = case_when(
+    strand == "+" ~ glue::glue("{chr}:{longExonStart_0base}-{longExonEnd}_{flankingES}-{flankingEE}"),
+    strand == "-" ~ glue::glue("{chr}:{flankingES}-{flankingEE}_{longExonStart_0base}-{longExonEnd}"))) %>%
+  dplyr::mutate(short_incl_jc = case_when(
+    strand == "+" ~ glue::glue("{chr}:{shortES}-{shortEE}_{flankingES}-{flankingEE}"),
+    strand == "-" ~ glue::glue("{chr}:{flankingES}-{flankingEE}_{shortES}-{shortEE}")
+  )) %>%
+  dplyr::mutate(sample_id = sample_id) %>%
   # select relevant columns
   dplyr::select(sample_id, geneSymbol, strand,
                 long_incl_jc,
@@ -318,7 +348,11 @@ a5ss_junction_mat <- tumor_a5ss_rmats %>%
   # for rare cases of duplicated junctions, calculate median count
   group_by(sample_id, geneSymbol, strand, junction) %>%
   summarise(junction_count = median(junction_ct)) %>%
-  ungroup()
+  ungroup() %>%
+  dplyr::filter(!junction %in% c(se_junction_mat$junction,
+                                 ri_junction_mat$junction,
+                                 a3ss_junction_mat$junction),
+                junction_count > 0)
 
 # calculate junction specificity
 a5ss_junction_df <- get_tumor_specific_junctions(a5ss_junction_mat,
@@ -409,33 +443,93 @@ jc_annot <- ei_events %>%
             a5_gain_events) %>%
   group_by(junction) %>%
   summarise(event_type = str_c(type, collapse = ";"))
- # dplyr::mutate(boundary = unlist(lapply(strsplit(junction, "-"), function(x) x[[2]])))
 
 # Merge tumor-specific junctions and targets 
 merged_junction_df <- a5ss_junction_df %>%
-  dplyr::select(geneSymbol, junction, strand, junction_count) %>%
+  dplyr::select(geneSymbol, junction, boundary, strand, junction_count, n_low_ct_brain_gtex, n_low_ct_nonbrain_gtex) %>%
   bind_rows(a3ss_junction_df %>%
-              dplyr::select(geneSymbol, junction, strand, junction_count)) %>%
+              dplyr::select(geneSymbol, junction, boundary, strand, 
+                            junction_count, n_low_ct_brain_gtex, n_low_ct_nonbrain_gtex)) %>%
   bind_rows(se_junction_df %>%
-              dplyr::select(geneSymbol, junction, strand, junction_count)) %>%
+              dplyr::select(geneSymbol, junction, boundary, strand, 
+                            junction_count, n_low_ct_brain_gtex, n_low_ct_nonbrain_gtex)) %>%
   bind_rows(ri_junction_df %>%
-              dplyr::select(geneSymbol, junction, strand, junction_count)) %>%
+              dplyr::select(geneSymbol, junction, boundary, strand, 
+                            junction_count, n_low_ct_brain_gtex, n_low_ct_nonbrain_gtex)) %>%
   dplyr::rename(coordinates = junction,
                 count = junction_count) %>%
   dplyr::mutate(type = "junction") %>%
   bind_rows(se_target_df %>%
-              dplyr::select(geneSymbol, target, strand, target_count) %>%
+              dplyr::select(geneSymbol, target, strand, target_count, 
+                            n_low_ct_brain_gtex, n_low_ct_nonbrain_gtex) %>%
               dplyr::rename(coordinates = target,
                             count = target_count) %>%
               dplyr::mutate(type = "exon")) %>%
   bind_rows(ri_target_df %>%
-              dplyr::select(geneSymbol, target, strand, target_count) %>%
+              dplyr::select(geneSymbol, target, strand, target_count, 
+                            n_low_ct_brain_gtex, n_low_ct_nonbrain_gtex) %>%
               dplyr::rename(coordinates = target,
                             count = target_count) %>%
               dplyr::mutate(type = "intron")) %>%
   distinct() %>%
   left_join(jc_annot,
-            by = c("coordinates" = "junction"))
+            by = c("coordinates" = "junction")) %>%
+  # define chr, start, end
+  dplyr::mutate(chr = unlist(lapply(str_split(coordinates, ":"), function(x) x[1]))) %>%
+  dplyr::mutate(start = case_when(
+    type == "junction" ~ unlist(lapply(str_split(boundary, "_"), function(x) x[1])),
+    type %in% c("exon", "intron") ~ unlist(lapply(str_split(coordinates, "[:|_]"), function(x) x[2]))
+  ), end = case_when(
+    type == "junction" ~ unlist(lapply(str_split(boundary, "_"), function(x) x[2])),
+    type %in% c("exon", "intron") ~ unlist(lapply(str_split(coordinates, "[:|_]"), function(x) x[3]))
+  ))
+
+# determine if splice sites are annotated
+merged_junction_df <- merged_junction_df %>%
+  dplyr::mutate(start_annotated = NA_character_,
+                end_annotated = NA_character_)
+  
+# load gencode GTF
+gtf <- rtracklayer::import(file.path(data_dir,
+                                     "gencode.v39.primary_assembly.annotation.gtf.gz"))
+gtf_df <- data.frame(gtf)
+
+# determine annotation of junction sites
+for (i in 1:nrow(merged_junction_df)){
+  
+  type <- merged_junction_df$type[i]
+  chr <- merged_junction_df$chr[i]
+  start_pos <- ifelse(type == "junction",
+                      as.numeric(merged_junction_df$start[i]),
+                      as.numeric(merged_junction_df$start[i]) + 1)
+  end_pos <- ifelse(type == "junction",
+                as.numeric(merged_junction_df$end[i]) + 1,
+                as.numeric(merged_junction_df$end[i]))
+  
+  start_annots <- gtf_df %>%
+    dplyr::filter(seqnames == chr,
+                  (start == start_pos | end == start_pos))
+  
+  end_annots <- gtf_df %>% 
+    dplyr::filter(seqnames == chr,
+                  (start == end_pos | end == end_pos))
+  
+  merged_junction_df$start_annotated[i] <- ifelse(nrow(start_annots) > 0,
+                                               "Yes",
+                                               "No")
+  
+  merged_junction_df$end_annotated[i] <- ifelse(nrow(end_annots) > 0,
+                                               "Yes",
+                                               "No")
+  
+}
+
+# define whether junction contains any novel splice site
+merged_junction_df <- merged_junction_df %>%
+  dplyr::mutate(novel_splice_site = case_when(
+    start_annotated == "No" | end_annotated == "No" ~ "Yes",
+    TRUE ~ "No"
+  ))
 
 # save to output
 write_tsv(merged_junction_df,

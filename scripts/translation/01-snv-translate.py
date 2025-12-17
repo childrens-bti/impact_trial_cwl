@@ -24,10 +24,14 @@ def read_tsv(file_path):
         return [row for row in reader if row and not row[0].startswith("#")]
 
 
-def load_proteomes(ensembl_path, refseq_path, cds_path):
-    ensembl = Path(ensembl_path)
-    refseq = Path(refseq_path)
-    cds_file = Path(cds_path)
+def load_proteomes():
+    root_dir = next(
+        p for p in [Path.cwd()] + list(Path.cwd().parents) if (p / ".git").is_dir()
+    )
+    data_dir = root_dir / "data"
+    ensembl = data_dir / "Homo_sapiens.GRCh38.pep.all.fa.gz"
+    refseq = data_dir / "GCF_000001405.40_GRCh38.p14_protein.faa.gz"
+    cds_file = data_dir / "Homo_sapiens.GRCh38.cds.all.fa.gz"
 
     ensp2pep = {}
     refseqID2prot = {}
@@ -326,21 +330,6 @@ def main():
     parser.add_argument("-i", "--input", required=True, help="Path to input file")
     parser.add_argument("-o", "--output", required=True, help="Path to output file")
     parser.add_argument(
-        "--ensembl_proteome",
-        required=True,
-        help="Path to Ensembl proteome file (Homo_sapiens.GRCh38.pep.all.fa.gz)",
-    )
-    parser.add_argument(
-        "--refseq_proteome",
-        required=True,
-        help="Path to RefSeq proteome file (GCF_000001405.40_GRCh38.p14_protein.faa.gz)",
-    )
-    parser.add_argument(
-        "--cds_file",
-        required=True,
-        help="Path to CDS file (Homo_sapiens.GRCh38.cds.all.fa.gz)",
-    )
-    parser.add_argument(
         "-d",
         "--digestion",
         choices=["trypsin", "lysC"],
@@ -358,9 +347,7 @@ def main():
         sys.exit()
 
     args = parser.parse_args()
-    ensp2pep, refseqID2prot, transcript2cds = load_proteomes(
-        args.ensembl_proteome, args.refseq_proteome, args.cds_file
-    )
+    ensp2pep, refseqID2prot, transcript2cds = load_proteomes()
     digestion_func = tryptic_pep if args.digestion == "trypsin" else lysC_pep
     write_fasta(
         args.input,

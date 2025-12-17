@@ -12,18 +12,22 @@ library(stringr)
 library(data.table)
 
 ### Set directory paths
-# Use current working directory (CWL stages files here)
-data_dir <- getwd()
-results_dir <- file.path("results")
+root_dir <- rprojroot::find_root(rprojroot::has_dir(".git"))
+data_dir <- file.path(root_dir, "data")
+analysis_dir <- file.path(root_dir, "analyses", "create-gtex-matrices")
+results_dir <- file.path(analysis_dir, "results")
 dir.create(results_dir, showWarnings = FALSE, recursive = TRUE)
-
-# Set file paths (files are staged in current directory by CWL)
-gtex_se_file <- "gtex-rmats_merged_raw_SE.qs2"
-gtex_ri_file <- "gtex-rmats_merged_raw_RI.qs2"
-gtex_a3ss_file <- "gtex-rmats_merged_raw_A3SS.qs2"
-gtex_a5ss_file <- "gtex-rmats_merged_raw_A5SS.qs2"
-hist_file <- "histologies.tsv"
-gtex_read_ct_file <- file.path(data_dir, "gtex_input_read_counts.tsv")
+# Set file paths
+gtex_se_file <- file.path(data_dir,
+                          "gtex-rmats_merged_raw_SE.qs2")
+gtex_ri_file <- file.path(data_dir,
+                          "gtex-rmats_merged_raw_RI.qs2")
+gtex_a3ss_file <- file.path(data_dir,
+                            "gtex-rmats_merged_raw_A3SS.qs2")
+gtex_a5ss_file <- file.path(data_dir,
+                            "gtex-rmats_merged_raw_A5SS.qs2")
+hist_file <- file.path(data_dir,
+                       "histologies.tsv")
 
 # Load OPC hist and filter for GTEx RNA-seq
 gtex_hist <- read_tsv(hist_file) %>%
@@ -31,10 +35,6 @@ gtex_hist <- read_tsv(hist_file) %>%
                 experimental_strategy == "RNA-Seq") %>%
   # only need BS ID, subgroup columns
   dplyr::select(Kids_First_Biospecimen_ID, gtex_subgroup)
-
-# Load table of read counts used by rMATS per GTEx sample
-gtex_read_cts <- read_tsv(gtex_read_ct_file) %>%
-  dplyr::mutate(sample_id = unlist(lapply(strsplit(sample_id, "_"), function(x) x[[1]])))
 
 # pull cell samples to be filtered out
 gtex_cell_samples <- gtex_hist %>%
@@ -74,7 +74,6 @@ se_target_df <- se_df[
 ]
 
 # convert read cts and hist to data tables
-gtex_read_cts_dt <- as.data.table(gtex_read_cts)
 gtex_hist_dt     <- as.data.table(gtex_hist)
 
 # Merge histology info
@@ -266,13 +265,21 @@ a3ss_df <- qs2::qs_read(gtex_a3ss_file) %>%
 # define junction coordinates and filter for relevant columns
 a3ss_df <- a3ss_df %>%
   dplyr::mutate(
-    long_incl_jc = str_c(chr, ":",
-                         flankingES, "-", flankingEE, "_",
-                         longExonStart_0base, "-", longExonEnd),
-    
-    short_incl_jc = str_c(chr, ":",
-                          flankingES, "-", flankingEE, "_",
-                          shortES, "-", shortEE)
+    long_incl_jc = case_when(
+      strand == "+" ~ str_c(chr, ":",
+                            flankingES, "-", flankingEE, "_",
+                            longExonStart_0base, "-", longExonEnd),
+      strand == "-" ~ str_c(chr, ":",
+                            longExonStart_0base, "-", longExonEnd, "_",
+                            flankingES, "-", flankingEE))) %>%
+  dplyr::mutate(
+    short_incl_jc = case_when(
+      strand == "+" ~ str_c(chr, ":",
+                            flankingES, "-", flankingEE, "_",
+                            shortES, "-", shortEE),
+      strand == "-" ~ str_c(chr, ":",
+                            shortES, "-", shortEE, "_",
+                            flankingES, "-", flankingEE))
   ) %>%
   dplyr::select(sample_id, geneSymbol, long_incl_jc,
                 short_incl_jc,
@@ -334,13 +341,22 @@ a5ss_df <- qs2::qs_read(gtex_a5ss_file) %>%
 # define junction coordinates and filter for relevant columns 
 a5ss_df <- a5ss_df %>%
   dplyr::mutate(
-    long_incl_jc = str_c(chr, ":",
-                         longExonStart_0base, "-", longExonEnd, "_",
-                         flankingES, "-", flankingEE),
-    
-    short_incl_jc = str_c(chr, ":",
-                          shortES, "-", shortEE, "_",
-                          flankingES, "-", flankingEE)
+    long_incl_jc = case_when(
+      strand == "+" ~ str_c(chr, ":",
+                            longExonStart_0base, "-", longExonEnd, "_",
+                            flankingES, "-", flankingEE),
+      strand == "-" ~ str_c(chr, ":",
+                            flankingES, "-", flankingEE, "_",
+                            longExonStart_0base, "-", longExonEnd))
+  ) %>%
+  dplyr::mutate(
+    short_incl_jc = case_when(
+      strand == "+" ~ str_c(chr, ":",
+                            shortES, "-", shortEE, "_",
+                            flankingES, "-", flankingEE),
+      strand == "-" ~ str_c(chr, ":",
+                            flankingES, "-", flankingEE, "_",
+                            shortES, "-", shortEE))
   ) %>%
   dplyr::select(sample_id, geneSymbol, long_incl_jc,
                 short_incl_jc,
