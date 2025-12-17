@@ -10,14 +10,13 @@ doc: |
   - Alternative splicing events (rMATS: SE, RI, A3SS, A5SS)
   
   Pipeline steps:
-  1. Create GTEx junction count matrices
-  2. Filter tumor splice events for specificity
-  3. Translate SNVs to peptides
-  4. Translate STAR-Fusion events to peptides
-  5. Translate Arriba fusion events to peptides
-  6. Translate splice events to peptides
-  7. Merge all peptide FASTAs
-  8. Filter against UniProt canonical proteome
+  1. Filter tumor splice events for specificity
+  2. Translate SNVs to peptides
+  3. Translate STAR-Fusion events to peptides
+  4. Translate Arriba fusion events to peptides
+  5. Translate splice events to peptides
+  6. Merge all peptide FASTAs
+  7. Filter against UniProt canonical proteome
 
 requirements:
   SubworkflowFeatureRequirement: {}
@@ -27,29 +26,32 @@ requirements:
 
 inputs:
   # Sample metadata
-  sample_id:
+  dna_sample_id:
     type: string
-    doc: "Sample identifier"
+    doc: "DNA sample identifier (for SNVs/mutations)"
+  rna_sample_id:
+    type: string
+    doc: "RNA sample identifier (for fusions and splice events)"
   
-  # GTEx reference files (Step 1)
-  gtex_se_rmats:
+  # Pre-computed GTEx matrices
+  gtex_se_junction_matrix:
     type: File
-    doc: "GTEx rMATS SE merged file"
-  gtex_ri_rmats:
+    doc: "Pre-computed GTEx SE junction matrix"
+  gtex_se_target_matrix:
     type: File
-    doc: "GTEx rMATS RI merged file"
-  gtex_a3ss_rmats:
+    doc: "Pre-computed GTEx SE target matrix"
+  gtex_ri_junction_matrix:
     type: File
-    doc: "GTEx rMATS A3SS merged file"
-  gtex_a5ss_rmats:
+    doc: "Pre-computed GTEx RI junction matrix"
+  gtex_ri_target_matrix:
     type: File
-    doc: "GTEx rMATS A5SS merged file"
-  histologies_file:
+    doc: "Pre-computed GTEx RI target matrix"
+  gtex_a3ss_junction_matrix:
     type: File
-    doc: "GTEx histologies metadata"
-  gtex_read_counts:
+    doc: "Pre-computed GTEx A3SS junction matrix"
+  gtex_a5ss_junction_matrix:
     type: File
-    doc: "GTEx input read counts"
+    doc: "Pre-computed GTEx A5SS junction matrix"
   
   # Tumor splice event files
   tumor_se_rmats:
@@ -133,19 +135,6 @@ outputs:
     doc: "BLAST results against UniProt"
   
   # Intermediate outputs
-  gtex_matrices:
-    type:
-      type: array
-      items: File
-    outputSource:
-      - create_gtex_matrices/gtex_se_junction_matrix
-      - create_gtex_matrices/gtex_se_target_matrix
-      - create_gtex_matrices/gtex_ri_junction_matrix
-      - create_gtex_matrices/gtex_ri_target_matrix
-      - create_gtex_matrices/gtex_a3ss_junction_matrix
-      - create_gtex_matrices/gtex_a5ss_junction_matrix
-    doc: "GTEx junction and target matrices"
-  
   tumor_specific_splice_products:
     type: File
     outputSource: filter_splice_events/tumor_specific_splice_products
@@ -172,46 +161,29 @@ outputs:
     doc: "Splice event-derived peptides"
 
 steps:
-  # Step 1: Create GTEx matrices
-  create_gtex_matrices:
-    run: tools/create-gtex-matrices.cwl
-    in:
-      gtex_se_rmats: gtex_se_rmats
-      gtex_ri_rmats: gtex_ri_rmats
-      gtex_a3ss_rmats: gtex_a3ss_rmats
-      gtex_a5ss_rmats: gtex_a5ss_rmats
-      histologies_file: histologies_file
-      gtex_read_counts: gtex_read_counts
-    out:
-      - gtex_se_junction_matrix
-      - gtex_se_target_matrix
-      - gtex_ri_junction_matrix
-      - gtex_ri_target_matrix
-      - gtex_a3ss_junction_matrix
-      - gtex_a5ss_junction_matrix
-  
-  # Step 2: Filter splice events for tumor specificity
+  # Step 1: Filter splice events for tumor specificity
   filter_splice_events:
     run: tools/filter-splice-events.cwl
     in:
-      sample_id: sample_id
+      sample_id: rna_sample_id
       tumor_se_rmats: tumor_se_rmats
       tumor_ri_rmats: tumor_ri_rmats
       tumor_a3ss_rmats: tumor_a3ss_rmats
       tumor_a5ss_rmats: tumor_a5ss_rmats
-      gtex_se_junction_matrix: create_gtex_matrices/gtex_se_junction_matrix
-      gtex_se_target_matrix: create_gtex_matrices/gtex_se_target_matrix
-      gtex_ri_junction_matrix: create_gtex_matrices/gtex_ri_junction_matrix
-      gtex_ri_target_matrix: create_gtex_matrices/gtex_ri_target_matrix
-      gtex_a3ss_junction_matrix: create_gtex_matrices/gtex_a3ss_junction_matrix
-      gtex_a5ss_junction_matrix: create_gtex_matrices/gtex_a5ss_junction_matrix
+      gtex_se_junction_matrix: gtex_se_junction_matrix
+      gtex_se_target_matrix: gtex_se_target_matrix
+      gtex_ri_junction_matrix: gtex_ri_junction_matrix
+      gtex_ri_target_matrix: gtex_ri_target_matrix
+      gtex_a3ss_junction_matrix: gtex_a3ss_junction_matrix
+      gtex_a5ss_junction_matrix: gtex_a5ss_junction_matrix
     out:
       - tumor_specific_splice_products
   
-  # Step 3: Translate SNVs
+  # Step 2: Translate SNVs
   snv_translate:
     run: tools/snv-translate.cwl
     in:
+      sample_id: dna_sample_id
       maf_file: maf_file
       ensembl_proteome: ensembl_proteome
       refseq_proteome: refseq_proteome
@@ -219,31 +191,33 @@ steps:
     out:
       - snv_peptides
   
-  # Step 4: Translate STAR-Fusion
+  # Step 3: Translate STAR-Fusion
   star_fusion_translate:
     run: tools/star-fusion-translate.cwl
     in:
+      sample_id: rna_sample_id
       star_fusion_file: star_fusion_file
       gtex_normals: gtex_star_normals
       annofuse_filter: annofuse_filter
     out:
       - fusion_peptides
   
-  # Step 5: Translate Arriba fusions
+  # Step 4: Translate Arriba fusions
   arriba_fusion_translate:
     run: tools/arriba-fusion-translate.cwl
     in:
+      sample_id: rna_sample_id
       arriba_fusion_file: arriba_fusion_file
       gtex_normals: gtex_arriba_normals
       annofuse_filter: annofuse_filter
     out:
       - fusion_peptides
   
-  # Step 6: Translate splice events
+  # Step 5: Translate splice events
   translate_splice_events:
     run: tools/translate-splice-events.cwl
     in:
-      sample_id: sample_id
+      sample_id: rna_sample_id
       tumor_specific_splice_products: filter_splice_events/tumor_specific_splice_products
       genome_fasta: genome_fasta
       min_peptide_length: min_peptide_length
@@ -251,7 +225,7 @@ steps:
     out:
       - splice_peptides
   
-  # Step 7: Merge all peptide FASTAs
+  # Step 6: Merge all peptide FASTAs
   merge_fasta:
     run: tools/merge-fasta.cwl
     in:
@@ -262,7 +236,7 @@ steps:
     out:
       - merged_fasta
   
-  # Step 8: Filter against UniProt
+  # Step 7: Filter against UniProt
   filter_fasta:
     run: tools/filter-fasta.cwl
     in:

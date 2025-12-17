@@ -16,7 +16,7 @@ arguments:
   - prefix: -i
     valueFrom: $(inputs.arriba_fusion_file.path)
   - prefix: -o
-    valueFrom: arriba-fusion-peptides.fasta
+    valueFrom: $(inputs.sample_id)_arriba-fusion-peptides.fasta
   - --skip_digestion
   - prefix: --gtex_normals
     valueFrom: $(inputs.gtex_normals.path)
@@ -24,6 +24,10 @@ arguments:
     valueFrom: $(inputs.annofuse_filter.path)
 
 inputs:
+  sample_id:
+    type: string
+    doc: "Sample identifier for output filename"
+  
   arriba_fusion_file:
     type: File
     doc: "Arriba fusion predictions file"
@@ -40,4 +44,4 @@ outputs:
   fusion_peptides:
     type: File
     outputBinding:
-      glob: "arriba-fusion-peptides.fasta"
+      glob: "$(inputs.sample_id)_arriba-fusion-peptides.fasta"
