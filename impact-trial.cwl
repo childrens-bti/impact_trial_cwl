@@ -37,25 +37,53 @@ inputs:
   gtex_se_junction_matrix:
     type: File
     doc: "Pre-computed GTEx SE junction matrix"
+    sbg:suggestedValue:
+      class: File
+      path: 69440de8b297be1da102ed72
+      name: gtex-se-junction-mat-raw.qs2
   gtex_se_target_matrix:
     type: File
     doc: "Pre-computed GTEx SE target matrix"
+    sbg:suggestedValue:
+      class: File
+      path: 69440de8b297be1da102ed87
+      name: gtex-se-target-mat-raw.qs2
   gtex_ri_junction_matrix:
     type: File
     doc: "Pre-computed GTEx RI junction matrix"
+    sbg:suggestedValue:
+      class: File
+      path: 69440de8b297be1da102ed46
+      name: gtex-ri-junction-mat-raw.qs2
   gtex_ri_target_matrix:
     type: File
     doc: "Pre-computed GTEx RI target matrix"
+    sbg:suggestedValue:
+      class: File
+      path: 69440de8b297be1da102ed48
+      name: gtex-ri-target-mat-raw.qs2
   gtex_a3ss_junction_matrix:
     type: File
     doc: "Pre-computed GTEx A3SS junction matrix"
+    sbg:suggestedValue:
+      class: File
+      path: 69440de8b297be1da102ed40
+      name: gtex-a3ss-junction-mat-raw.qs2
   gtex_a5ss_junction_matrix:
     type: File
     doc: "Pre-computed GTEx A5SS junction matrix"
+    sbg:suggestedValue:
+      class: File
+      path: 69440de8b297be1da102ed44
+      name: gtex-a5ss-junction-mat-raw.qs2
   
   gencode_gtf:
     type: File
     doc: "GENCODE gene annotation GTF file"
+    sbg:suggestedValue:
+      class: File
+      path: 69440f0fb297be1da1031222
+      name: gencode.v39.primary_assembly.annotation.gtf.gz
   
   # Tumor splice event files
   tumor_se_rmats:
@@ -80,12 +108,24 @@ inputs:
   ensembl_proteome:
     type: File
     doc: "Ensembl proteome reference (Homo_sapiens.GRCh38.pep.all.fa.gz)"
+    sbg:suggestedValue:
+      class: File
+      path: 69440f0fb297be1da1031214
+      name: Homo_sapiens.GRCh38.pep.all.fa.gz
   refseq_proteome:
     type: File
     doc: "RefSeq proteome reference (GCF_000001405.40_GRCh38.p14_protein.faa.gz)"
+    sbg:suggestedValue:
+      class: File
+      path: 69440e7f5ddfaa35efbf337b
+      name: GCF_000001405.40_GRCh38.p14_protein.faa.gz
   cds_file:
     type: File
     doc: "CDS reference file (Homo_sapiens.GRCh38.cds.all.fa.gz)"
+    sbg:suggestedValue:
+      class: File
+      path: 69440f0fb297be1da1031213
+      name: Homo_sapiens.GRCh38.cds.all.fa.gz
   
   star_fusion_file:
     type: File
@@ -96,15 +136,27 @@ inputs:
   gtex_star_normals:
     type: File
     doc: "GTEx STAR-Fusion normals"
+    sbg:suggestedValue:
+      class: File
+      path: 69440fdae0dee132ae37079d
+      name: cfde-gtex-fusion-starfusion.tsv.gz
   gtex_arriba_normals:
     type: File
     doc: "GTEx Arriba normals"
+    sbg:suggestedValue:
+      class: File
+      path: 69440fd6b297be1da10315cc
+      name: cfde-gtex-arriba_formatted.annotated.tsv.gz
   annofuse_filter:
     type: File
     doc: "annoFuse filter file"
   genome_fasta:
     type: File
     doc: "Reference genome FASTA (GRCh38)"
+    sbg:suggestedValue:
+      class: File
+      path: 69440f0fb297be1da103121a
+      name: GRCh38.primary_assembly.genome.fa.gz
   
   # Translation parameters
   min_peptide_length:
@@ -120,6 +172,10 @@ inputs:
   uniprot_fasta:
     type: File
     doc: "UniProt canonical proteome FASTA"
+    sbg:suggestedValue:
+      class: File
+      path: 69440fdb5ddfaa35efbf50e4
+      name: UP000005640_9606.fasta
 
 outputs:
   # Final outputs
