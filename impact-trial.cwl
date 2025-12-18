@@ -324,3 +324,12 @@ steps:
       - filtered_fasta
       - blast_results
       - full_matches
+
+$namespaces:
+  sbg: "https://sevenbridges.com/"
+hints:
+- class: "sbg:maxNumberOfParallelInstances"
+  value: 2
+"sbg:links":
+- id: "https://github.com/childrens-bti/impact_trial_cwl/tree/workflow_sketch" # will update with stable release
+  label: github-release
