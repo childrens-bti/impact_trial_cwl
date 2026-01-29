@@ -27,18 +27,23 @@ outputs/*
 !outputs/.gitkeep
 params/*
 !params/.gitkeep
+!workflows/.gitkeep
+!tools/.gitkeep
+!scripts/.gitkeep
 test/*
-!test/.gitkeep
 logs/*
 !logs/.gitkeep
-sbg-hints/* 
-!sbg-hints/.gitkeep
 
 # harmonized data
 data/*
 !data/.gitkeep
 # manifest files
-# manifests/*
-# !manifests/.gitkeep
+manifests/*
+!manifests/.gitkeep
 
-analyses/
+# tmporary shell scripts
+run_data.sh
+
+# cwltool temp files
+.cwl-tmp/
+.cwl-out/
