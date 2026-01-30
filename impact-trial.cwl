@@ -331,5 +331,5 @@ hints:
 - class: "sbg:maxNumberOfParallelInstances"
   value: 2
 "sbg:links":
-- id: "https://github.com/childrens-bti/impact_trial_cwl/tree/workflow_sketch" # will update with stable release
+- id: "https://github.com/childrens-bti/impact_trial_cwl/releases/tag/v1.0.0"
   label: github-release
