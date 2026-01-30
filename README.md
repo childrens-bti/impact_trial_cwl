@@ -1,5 +1,7 @@
 # IMPACT Trial CWL Workflow
 
+**Latest Release:** v1.0.0 (Stable)
+
 This repository contains a Common Workflow Language (CWL) implementation of the IMPACT Trial peptide discovery pipeline.
 
 ## Pipeline Overview
