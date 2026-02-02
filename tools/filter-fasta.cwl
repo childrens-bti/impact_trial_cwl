@@ -1,4 +1,3 @@
-
 cwlVersion: v1.2
 class: CommandLineTool
 
@@ -21,8 +20,20 @@ arguments:
     valueFrom: $(inputs.custom_fasta.path)
   - prefix: --uniprot_fasta
     valueFrom: $(inputs.uniprot_fasta.path)
+  - prefix: --dna_sample_id
+    valueFrom: $(inputs.dna_sample_id)
+  - prefix: --rna_sample_id
+    valueFrom: $(inputs.rna_sample_id)
 
 inputs:
+  dna_sample_id:
+    type: string
+    doc: "DNA sample identifier"
+  
+  rna_sample_id:
+    type: string
+    doc: "RNA sample identifier"
+  
   custom_fasta:
     type: File
     doc: "Merged custom peptide FASTA"
@@ -35,14 +46,14 @@ outputs:
   filtered_fasta:
     type: File
     outputBinding:
-      glob: "custom_filtered.fasta"
+      glob: "$(inputs.dna_sample_id)_$(inputs.rna_sample_id)_tumor_specific_filtered.fasta"
   
   blast_results:
     type: File
     outputBinding:
-      glob: "blast_results.tsv"
+      glob: "$(inputs.dna_sample_id)_$(inputs.rna_sample_id)_uniprot_blast_results.tsv"
   
   full_matches:
     type: File
     outputBinding:
-      glob: "full_matches.txt"
+      glob: "$(inputs.dna_sample_id)_$(inputs.rna_sample_id)_uniprot_full_matches.txt"

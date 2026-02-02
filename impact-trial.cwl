@@ -307,6 +307,8 @@ steps:
   merge_fasta:
     run: tools/merge-fasta.cwl
     in:
+      dna_sample_id: dna_sample_id
+      rna_sample_id: rna_sample_id
       snv_peptides: snv_translate/snv_peptides
       star_fusion_peptides: star_fusion_translate/fusion_peptides
       arriba_fusion_peptides: arriba_fusion_translate/fusion_peptides
@@ -318,6 +320,8 @@ steps:
   filter_fasta:
     run: tools/filter-fasta.cwl
     in:
+      dna_sample_id: dna_sample_id
+      rna_sample_id: rna_sample_id
       custom_fasta: merge_fasta/merged_fasta
       uniprot_fasta: uniprot_fasta
     out:
