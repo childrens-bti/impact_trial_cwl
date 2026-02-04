@@ -16,13 +16,9 @@ requirements:
 baseCommand: [cat]
 
 inputs:
-  dna_sample_id:
+  output_basename:
     type: string
-    doc: "DNA sample identifier"
-  
-  rna_sample_id:
-    type: string
-    doc: "RNA sample identifier"
+    doc: "Base name for output files"
   
   snv_peptides:
     type: File
@@ -48,7 +44,7 @@ inputs:
       position: 4
     doc: "Splice event peptides FASTA"
 
-stdout: $(inputs.dna_sample_id)_$(inputs.rna_sample_id)_all_peptides_merged.fasta
+stdout: $(inputs.output_basename)_all_peptides_merged.fasta
 
 outputs:
   merged_fasta:

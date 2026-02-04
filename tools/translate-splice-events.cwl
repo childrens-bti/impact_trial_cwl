@@ -19,16 +19,16 @@ arguments:
   - prefix: --input
     valueFrom: $(inputs.tumor_specific_splice_products.path)
   - prefix: --sample_id
-    valueFrom: $(inputs.sample_id)
+    valueFrom: $(inputs.output_basename)
   - prefix: --min_peptide_length
     valueFrom: $(inputs.min_peptide_length)
   - prefix: --n_flank_bases
     valueFrom: $(inputs.n_flank_bases)
 
 inputs:
-  sample_id:
+  output_basename:
     type: string
-    doc: "Sample identifier"
+    doc: "Base name for output files (passed as sample_id to script)"
   
   tumor_specific_splice_products:
     type: File
@@ -52,14 +52,14 @@ outputs:
   splice_peptides:
     type: File
     outputBinding:
-      glob: "$(inputs.sample_id)_tumor_specific_splice_event_peptides.fasta"
+      glob: "$(inputs.output_basename)_tumor_specific_splice_event_peptides.fasta"
   
   junction_translation_report:
     type: File
     outputBinding:
-      glob: "$(inputs.sample_id)-tumor-specific-splice-junction-translation-report.tsv"
+      glob: "$(inputs.output_basename)-tumor-specific-splice-junction-translation-report.tsv"
   
   target_translation_report:
     type: File
     outputBinding:
-      glob: "$(inputs.sample_id)-tumor-specific-splice-target-translation-report.tsv"
+      glob: "$(inputs.output_basename)-tumor-specific-splice-target-translation-report.tsv"

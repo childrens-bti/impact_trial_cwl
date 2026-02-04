@@ -3,8 +3,7 @@ set -e
 set -o pipefail
 
 # Parse command line arguments
-dna_sample_id=""
-rna_sample_id=""
+output_basename=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -16,12 +15,8 @@ while [[ $# -gt 0 ]]; do
       uniprot_fasta="$2"
       shift 2
       ;;
-    --dna_sample_id)
-      dna_sample_id="$2"
-      shift 2
-      ;;
-    --rna_sample_id)
-      rna_sample_id="$2"
+    --output_basename)
+      output_basename="$2"
       shift 2
       ;;
     *)
@@ -31,10 +26,10 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Generate output filenames with sample IDs
-filtered_fasta="${dna_sample_id}_${rna_sample_id}_tumor_specific_filtered.fasta"
-blast_results="${dna_sample_id}_${rna_sample_id}_uniprot_blast_results.tsv"
-full_matches="${dna_sample_id}_${rna_sample_id}_uniprot_full_matches.txt"
+# Generate output filenames
+filtered_fasta="${output_basename}_tumor_specific_filtered.fasta"
+blast_results="${output_basename}_uniprot_blast_results.tsv"
+full_matches="${output_basename}_uniprot_full_matches.txt"
 
 # if BLAST database not found, build
 if [ ! -f "uniprot_db.pin" ]; then
