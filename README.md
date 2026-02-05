@@ -1,6 +1,6 @@
 # IMPACT Trial CWL Workflow
 
-**Latest Release:** v1.0.0 (Stable)
+**Latest Release:** v1.0.1 (Stable)
 
 This repository contains a Common Workflow Language (CWL) implementation of the IMPACT Trial peptide discovery pipeline.
 
@@ -73,15 +73,16 @@ bash download_data.sh
 Edit `params/impact-trial-inputs.yml` to specify your input files and parameters:
 
 ```yaml
-# Sample identifiers
-dna_sample_id: "YOUR_DNA_SAMPLE_ID"  # For MAF/SNV outputs
-rna_sample_id: "YOUR_RNA_SAMPLE_ID"  # For fusion/splice outputs
+# Sample output basenames
+output_basename_dna: "BS_1CZPVCXR_taskid"  # Base name for DNA-derived outputs (SNVs)
+output_basename_rna: "BS_S6Q7NKA3_taskid"  # Base name for RNA-derived outputs (fusions, splicing)
+output_basename_combined: "BS_1CZPVCXR_BS_S6Q7NKA3_taskid"  # Base name for combined outputs
 
 # Pre-computed GTEx matrices (required)
-se_gtex_junction_mat:
+gtex_se_junction_matrix:
   class: File
   path: ../data/gtex-se-junction-mat-raw.qs2
-se_gtex_target_mat:
+gtex_se_target_matrix:
   class: File
   path: ../data/gtex-se-target-mat-raw.qs2
 # ... (see params/impact-trial-inputs.yml for full example)
@@ -114,23 +115,23 @@ The workflow produces:
 
 ### Primary Outputs
 
-**File naming convention:** `{dna_sample_id}_{rna_sample_id}_{suffix}`
+**File naming convention:** Uses `output_basename_dna`, `output_basename_rna`, and `output_basename_combined` parameters
 
-Example with `dna_sample_id="BS_1CZPVCXR"` and `rna_sample_id="BS_S6Q7NKA3"`:
+Example with `output_basename_dna="BS_1CZPVCXR_taskid"`, `output_basename_rna="BS_S6Q7NKA3_taskid"`, and `output_basename_combined="BS_1CZPVCXR_BS_S6Q7NKA3_taskid"`:
 
-- **final_filtered_fasta** (`BS_1CZPVCXR_BS_S6Q7NKA3_tumor_specific_filtered.fasta`) 
+- **final_filtered_fasta** (`BS_1CZPVCXR_BS_S6Q7NKA3_taskid_tumor_specific_filtered.fasta`) 
   - Tumor-specific peptides with 100% UniProt matches removed
   - Output from Step 7 filtering
   
-- **merged_unfiltered_fasta** (`BS_1CZPVCXR_BS_S6Q7NKA3_all_peptides_merged.fasta`)
+- **merged_unfiltered_fasta** (`BS_1CZPVCXR_BS_S6Q7NKA3_taskid_all_peptides_merged.fasta`)
   - Combined peptides from all sources (SNVs, STAR-Fusion, Arriba, splice events)
   - Output from Step 6 (before UniProt filtering)
   
-- **blast_results** (`BS_1CZPVCXR_BS_S6Q7NKA3_uniprot_blast_results.tsv`)
+- **blast_results** (`BS_1CZPVCXR_BS_S6Q7NKA3_taskid_uniprot_blast_results.tsv`)
   - BLAST alignment results against UniProt canonical proteome
   - Tab-separated format: qseqid, sseqid, pident, length, qlen, slen
   
-- **full_matches** (`BS_1CZPVCXR_BS_S6Q7NKA3_uniprot_full_matches.txt`)
+- **full_matches** (`BS_1CZPVCXR_BS_S6Q7NKA3_taskid_uniprot_full_matches.txt`)
   - List of peptide IDs with 100% sequence identity to UniProt
   - These peptides are excluded from the final filtered FASTA
 
@@ -173,8 +174,9 @@ All outputs are written directly to the specified output directory (e.g., `outpu
 
 ### Parameters
 
-- `dna_sample_id` - DNA sample identifier (for MAF/SNV outputs) - **used in merged/filtered output filenames**
-- `rna_sample_id` - RNA sample identifier (for fusion/splice outputs) - **used in merged/filtered output filenames**
+- `output_basename_dna` - Base name for DNA-derived output files (SNVs). Used in intermediate output filenames. Example: `BS_1CZPVCXR_taskid`
+- `output_basename_rna` - Base name for RNA-derived output files (fusions, splice events). Used in intermediate output filenames. Example: `BS_S6Q7NKA3_taskid`
+- `output_basename_combined` - Base name for combined DNA+RNA outputs (merged/filtered FASTA files). Used in final output filenames. Example: `BS_1CZPVCXR_BS_S6Q7NKA3_taskid`
 - `min_peptide_length` - Minimum amino acid length (default: 8)
 - `n_flank_bases` - Flanking nucleotides for splice junctions (default: 20)
 
