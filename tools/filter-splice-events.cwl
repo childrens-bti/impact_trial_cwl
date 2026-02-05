@@ -31,12 +31,12 @@ arguments:
   - prefix: --tumor_a5ss_rmats
     valueFrom: $(inputs.tumor_a5ss_rmats.path)
   - prefix: --sample_id
-    valueFrom: $(inputs.sample_id)
+    valueFrom: $(inputs.output_basename)
 
 inputs:
-  sample_id:
+  output_basename:
     type: string
-    doc: "Sample identifier"
+    doc: "Base name for output files (passed as sample_id to script)"
   
   tumor_se_rmats:
     type: File
@@ -86,4 +86,4 @@ outputs:
   tumor_specific_splice_products:
     type: File
     outputBinding:
-      glob: "$(inputs.sample_id)-tumor-specific-splice-products.tsv"
+      glob: "$(inputs.output_basename)-tumor-specific-splice-products.tsv"

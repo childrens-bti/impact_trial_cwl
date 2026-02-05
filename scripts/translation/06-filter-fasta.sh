@@ -3,6 +3,8 @@ set -e
 set -o pipefail
 
 # Parse command line arguments
+output_basename=""
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --custom_fasta)
@@ -13,6 +15,10 @@ while [[ $# -gt 0 ]]; do
       uniprot_fasta="$2"
       shift 2
       ;;
+    --output_basename)
+      output_basename="$2"
+      shift 2
+      ;;
     *)
       echo "Unknown option: $1"
       exit 1
@@ -20,7 +26,10 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-filtered_fasta=custom_filtered.fasta
+# Generate output filenames
+filtered_fasta="${output_basename}_tumor_specific_filtered.fasta"
+blast_results="${output_basename}_uniprot_blast_results.tsv"
+full_matches="${output_basename}_uniprot_full_matches.txt"
 
 # if BLAST database not found, build
 if [ ! -f "uniprot_db.pin" ]; then
@@ -33,15 +42,15 @@ fi
 # run blastp
 blastp -query "$input_fasta" \
        -db uniprot_db \
-       -out blast_results.tsv \
+       -out "$blast_results" \
        -outfmt "6 qseqid sseqid pident length qlen slen"
 
 # extract query IDs with full-length 100% matches
-awk '$3 == 100 && $4 == $5 {print $1}' blast_results.tsv | sort -u > full_matches.txt
+awk '$3 == 100 && $4 == $5 {print $1}' "$blast_results" | sort -u > "$full_matches"
 
 # count matches and total peptides
 total=$(grep -c "^>" "$input_fasta")
-matches=$(wc -l < full_matches.txt)
+matches=$(wc -l < "$full_matches")
 remaining=$(( total - matches ))
 
 echo "Total peptides: $total"
@@ -49,5 +58,5 @@ echo "Filtered out (100% UniProt matches): $matches"
 echo "Remaining peptides: $remaining"
 
 # filter out 100% match peptides 
-seqkit grep -v -f full_matches.txt "$input_fasta" \
+seqkit grep -v -f "$full_matches" "$input_fasta" \
     > "$filtered_fasta"
