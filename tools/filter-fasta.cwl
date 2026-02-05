@@ -1,3 +1,4 @@
+
 cwlVersion: v1.2
 class: CommandLineTool
 
@@ -20,14 +21,8 @@ arguments:
     valueFrom: $(inputs.custom_fasta.path)
   - prefix: --uniprot_fasta
     valueFrom: $(inputs.uniprot_fasta.path)
-  - prefix: --output_basename
-    valueFrom: $(inputs.output_basename)
 
 inputs:
-  output_basename:
-    type: string
-    doc: "Base name for output files"
-  
   custom_fasta:
     type: File
     doc: "Merged custom peptide FASTA"
@@ -40,14 +35,14 @@ outputs:
   filtered_fasta:
     type: File
     outputBinding:
-      glob: "$(inputs.output_basename)_tumor_specific_filtered.fasta"
+      glob: "custom_filtered.fasta"
   
   blast_results:
     type: File
     outputBinding:
-      glob: "$(inputs.output_basename)_uniprot_blast_results.tsv"
+      glob: "blast_results.tsv"
   
   full_matches:
     type: File
     outputBinding:
-      glob: "$(inputs.output_basename)_uniprot_full_matches.txt"
+      glob: "full_matches.txt"

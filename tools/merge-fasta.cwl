@@ -1,9 +1,10 @@
+
 cwlVersion: v1.2
 class: CommandLineTool
 
 label: Merge FASTA files
 doc: |
-  Concatenates all peptide FASTA files into a single merged FASTA
+  Concatenates all peptide FASTA files into a single custom FASTA
 
 requirements:
   InitialWorkDirRequirement:
@@ -16,10 +17,6 @@ requirements:
 baseCommand: [cat]
 
 inputs:
-  output_basename:
-    type: string
-    doc: "Base name for output files"
-  
   snv_peptides:
     type: File
     inputBinding:
@@ -44,7 +41,7 @@ inputs:
       position: 4
     doc: "Splice event peptides FASTA"
 
-stdout: $(inputs.output_basename)_all_peptides_merged.fasta
+stdout: custom.fasta
 
 outputs:
   merged_fasta:

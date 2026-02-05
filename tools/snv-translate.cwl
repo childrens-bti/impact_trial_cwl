@@ -16,7 +16,7 @@ arguments:
   - prefix: -i
     valueFrom: $(inputs.maf_file.path)
   - prefix: -o
-    valueFrom: $(inputs.output_basename)_snv-peptides.fasta
+    valueFrom: $(inputs.sample_id)_snv-peptides.fasta
   - prefix: --ensembl_proteome
     valueFrom: $(inputs.ensembl_proteome.path)
   - prefix: --refseq_proteome
@@ -26,9 +26,9 @@ arguments:
   - --skip_digestion
 
 inputs:
-  output_basename:
+  sample_id:
     type: string
-    doc: "Base name for output files"
+    doc: "Sample identifier for output filename"
   
   maf_file:
     type: File
@@ -50,4 +50,4 @@ outputs:
   snv_peptides:
     type: File
     outputBinding:
-      glob: "$(inputs.output_basename)_snv-peptides.fasta"
+      glob: "$(inputs.sample_id)_snv-peptides.fasta"

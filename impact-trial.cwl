@@ -26,15 +26,12 @@ requirements:
 
 inputs:
   # Sample metadata
-  output_basename_dna:
+  dna_sample_id:
     type: string
-    doc: "Base name for DNA-derived output files (SNVs). Example: 'BS_1CZPVCXR_taskid'"
-  output_basename_rna:
+    doc: "DNA sample identifier (for SNVs/mutations)"
+  rna_sample_id:
     type: string
-    doc: "Base name for RNA-derived output files (fusions, splicing). Example: 'BS_S6Q7NKA3_taskid'"
-  output_basename_combined:
-    type: string
-    doc: "Base name for combined DNA+RNA output files (merged, filtered). Example: 'BS_1CZPVCXR_BS_S6Q7NKA3_taskid'"
+    doc: "RNA sample identifier (for fusions and splice events)"
   
   # Pre-computed GTEx matrices
   gtex_se_junction_matrix:
@@ -243,7 +240,7 @@ steps:
   filter_splice_events:
     run: tools/filter-splice-events.cwl
     in:
-      output_basename: output_basename_rna
+      sample_id: rna_sample_id
       tumor_se_rmats: tumor_se_rmats
       tumor_ri_rmats: tumor_ri_rmats
       tumor_a3ss_rmats: tumor_a3ss_rmats
@@ -262,7 +259,7 @@ steps:
   snv_translate:
     run: tools/snv-translate.cwl
     in:
-      output_basename: output_basename_dna
+      sample_id: dna_sample_id
       maf_file: maf_file
       ensembl_proteome: ensembl_proteome
       refseq_proteome: refseq_proteome
@@ -274,7 +271,7 @@ steps:
   star_fusion_translate:
     run: tools/star-fusion-translate.cwl
     in:
-      output_basename: output_basename_rna
+      sample_id: rna_sample_id
       star_fusion_file: star_fusion_file
       gtex_normals: gtex_star_normals
       annofuse_filter: annofuse_filter
@@ -285,7 +282,7 @@ steps:
   arriba_fusion_translate:
     run: tools/arriba-fusion-translate.cwl
     in:
-      output_basename: output_basename_rna
+      sample_id: rna_sample_id
       arriba_fusion_file: arriba_fusion_file
       gtex_normals: gtex_arriba_normals
       annofuse_filter: annofuse_filter
@@ -296,7 +293,7 @@ steps:
   translate_splice_events:
     run: tools/translate-splice-events.cwl
     in:
-      output_basename: output_basename_rna
+      sample_id: rna_sample_id
       tumor_specific_splice_products: filter_splice_events/tumor_specific_splice_products
       genome_fasta: genome_fasta
       min_peptide_length: min_peptide_length
@@ -310,7 +307,6 @@ steps:
   merge_fasta:
     run: tools/merge-fasta.cwl
     in:
-      output_basename: output_basename_combined
       snv_peptides: snv_translate/snv_peptides
       star_fusion_peptides: star_fusion_translate/fusion_peptides
       arriba_fusion_peptides: arriba_fusion_translate/fusion_peptides
@@ -322,7 +318,6 @@ steps:
   filter_fasta:
     run: tools/filter-fasta.cwl
     in:
-      output_basename: output_basename_combined
       custom_fasta: merge_fasta/merged_fasta
       uniprot_fasta: uniprot_fasta
     out:
@@ -336,5 +331,5 @@ hints:
 - class: "sbg:maxNumberOfParallelInstances"
   value: 2
 "sbg:links":
-- id: "https://github.com/childrens-bti/impact_trial_cwl/releases/tag/v1.0.1"
+- id: "https://github.com/childrens-bti/impact_trial_cwl/releases/tag/v1.0.0"
   label: github-release

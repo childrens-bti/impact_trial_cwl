@@ -21,8 +21,8 @@ The workflow performs tumor-specific peptide discovery from multiple genomic alt
 6. **Merge FASTAs** - Combine all peptide sequences
 7. **Filter Against UniProt** - Remove peptides with 100% UniProt matches
 
-**Note:** This workflow uses pre-computed GTEx junction and target matrices to avoid the memory-intensive matrix generation step (previously Step 1, requiring 65-70GB RAM)
-.                                                                                                                                                                          
+**Note:** This workflow uses pre-computed GTEx junction and target matrices to avoid the memory-intensive matrix generation step (previously Step 1, requiring 65-70GB RAM).
+
 ## Directory Structure
 
 ```
@@ -113,29 +113,12 @@ cwltool --leave-tmpdir --tmpdir-prefix ./.cwl-tmp/ --tmp-outdir-prefix ./.cwl-ou
 The workflow produces:
 
 ### Primary Outputs
-
-**File naming convention:** `{dna_sample_id}_{rna_sample_id}_{suffix}`
-
-Example with `dna_sample_id="BS_1CZPVCXR"` and `rna_sample_id="BS_S6Q7NKA3"`:
-
-- **final_filtered_fasta** (`BS_1CZPVCXR_BS_S6Q7NKA3_tumor_specific_filtered.fasta`) 
-  - Tumor-specific peptides with 100% UniProt matches removed
-  - Output from Step 7 filtering
-  
-- **merged_unfiltered_fasta** (`BS_1CZPVCXR_BS_S6Q7NKA3_all_peptides_merged.fasta`)
-  - Combined peptides from all sources (SNVs, STAR-Fusion, Arriba, splice events)
-  - Output from Step 6 (before UniProt filtering)
-  
-- **blast_results** (`BS_1CZPVCXR_BS_S6Q7NKA3_uniprot_blast_results.tsv`)
-  - BLAST alignment results against UniProt canonical proteome
-  - Tab-separated format: qseqid, sseqid, pident, length, qlen, slen
-  
-- **full_matches** (`BS_1CZPVCXR_BS_S6Q7NKA3_uniprot_full_matches.txt`)
-  - List of peptide IDs with 100% sequence identity to UniProt
-  - These peptides are excluded from the final filtered FASTA
+- **final_filtered_fasta** - Filtered tumor-specific peptide FASTA (peptides unique vs UniProt)
+- **merged_unfiltered_fasta** - All peptides before UniProt filtering
+- **blast_results** - BLAST alignment results against UniProt
+- **full_matches** - List of peptide IDs with 100% UniProt matches (filtered out)
 
 ### Intermediate Outputs
-
 - **tumor_specific_splice_products** - Filtered tumor-specific splice events TSV
 - **splice_junction_translation_report** - Translation report for splice junctions
 - **splice_target_translation_report** - Translation report for splice targets
@@ -173,8 +156,8 @@ All outputs are written directly to the specified output directory (e.g., `outpu
 
 ### Parameters
 
-- `dna_sample_id` - DNA sample identifier (for MAF/SNV outputs) - **used in merged/filtered output filenames**
-- `rna_sample_id` - RNA sample identifier (for fusion/splice outputs) - **used in merged/filtered output filenames**
+- `dna_sample_id` - DNA sample identifier (for MAF/SNV outputs)
+- `rna_sample_id` - RNA sample identifier (for fusion/splice outputs)
 - `min_peptide_length` - Minimum amino acid length (default: 8)
 - `n_flank_bases` - Flanking nucleotides for splice junctions (default: 20)
 
