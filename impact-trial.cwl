@@ -141,15 +141,15 @@ inputs:
     doc: "GTEx STAR-Fusion normals"
     sbg:suggestedValue:
       class: File
-      path: 69441df3e0dee132ae3749f4
-      name: cfde-gtex-fusion-starfusion.tsv.gz
+      path: 6984f117e0dee132ae7820c3
+      name: cfde-gtex-fusion-starfusionv2.7.10a.tsv.gz
   gtex_arriba_normals:
     type: File
     doc: "GTEx Arriba normals"
     sbg:suggestedValue:
       class: File
-      path: 69441df4e0dee132ae374a24
-      name: cfde-gtex-arriba_formatted.annotated.tsv.gz
+      path: 6984f117e0dee132ae7820c4
+      name: cfde-gtex-arribav2.2.1_formatted.annotated.tsv.gz
   annofuse_filter:
     type: File
     doc: "annoFuse filter file"
