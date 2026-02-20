@@ -211,7 +211,7 @@ writeXStringSet(peptides, filepath = output_fasta, format = "fasta")
 
 write_tsv(junction_report_log,
           glue::glue("{sample}-tumor-specific-splice-junction-translation-report.tsv"))
-write_tsv(junction_report_log,
+write_tsv(target_report_log,
           glue::glue("{sample}-tumor-specific-splice-target-translation-report.tsv"))
 
 # Session info
