@@ -43,7 +43,7 @@ manifests/*
 
 # tmporary shell scripts
 run_data.sh
-
+mount_s3.sh
 # cwltool temp files
 .cwl-tmp/
 .cwl-out/
