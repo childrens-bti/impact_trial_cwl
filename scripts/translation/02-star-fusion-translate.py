@@ -166,16 +166,16 @@ def main():
 
     digestion_func = tryptic_pep if args.digestion == "trypsin" else lysC_pep
 
-    # Generate the list but don’t write yet
+    # Generate the list and always materialize output for CWL collection
     records = fusion_prot(args.input, digestion_func, args.skip_digestion, args.gtex_normals, args.annofuse_filter)
 
-    # If empty, let the user know and exit without creating a file
+    # Always write the FASTA, even when empty
+    write_fasta(args.output, records)
+
     if not records:
-        print("No INFRAME or FRAMESHIFT entries found; nothing to translate.")
+        print("No INFRAME or FRAMESHIFT entries found; wrote empty FASTA.")
         sys.exit(0)
 
-    # Otherwise write out the FASTA
-    write_fasta(args.output, records)
     print(f"Processing data from {args.input} and saving results to {args.output}")
     if args.skip_digestion:
         print("Note: digestion step was skipped.")
