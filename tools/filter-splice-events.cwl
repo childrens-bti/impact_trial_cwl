@@ -9,15 +9,6 @@ doc: |
 requirements:
   DockerRequirement:
     dockerPull: "pgc-images.sbgenomics.com/childrens-bti/impact_trial_cwl:latest"
-  InitialWorkDirRequirement:
-    listing:
-      - $(inputs.gtex_se_junction_matrix)
-      - $(inputs.gtex_se_target_matrix)
-      - $(inputs.gtex_ri_junction_matrix)
-      - $(inputs.gtex_ri_target_matrix)
-      - $(inputs.gtex_a3ss_junction_matrix)
-      - $(inputs.gtex_a5ss_junction_matrix)
-      - $(inputs.gencode_gtf)
 
 baseCommand: [Rscript, --vanilla, /opt/impact_trial/scripts/splice-junction-filtering/filter-splice-events.R]
 
@@ -32,6 +23,20 @@ arguments:
     valueFrom: $(inputs.tumor_a5ss_rmats.path)
   - prefix: --sample_id
     valueFrom: $(inputs.output_basename)
+  - prefix: --se_gtex_junction_mat_file
+    valueFrom: $(inputs.gtex_se_junction_matrix.path)
+  - prefix: --se_gtex_target_mat_file
+    valueFrom: $(inputs.gtex_se_target_matrix.path)
+  - prefix: --ri_gtex_junction_mat_file
+    valueFrom: $(inputs.gtex_ri_junction_matrix.path)
+  - prefix: --ri_gtex_intron_mat_file
+    valueFrom: $(inputs.gtex_ri_target_matrix.path)
+  - prefix: --a3ss_gtex_junction_mat_file
+    valueFrom: $(inputs.gtex_a3ss_junction_matrix.path)
+  - prefix: --a5ss_gtex_junction_mat_file
+    valueFrom: $(inputs.gtex_a5ss_junction_matrix.path)
+  - prefix: --gencode_gtf
+    valueFrom: $(inputs.gencode_gtf.path)
 
 inputs:
   output_basename:
