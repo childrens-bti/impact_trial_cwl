@@ -49,36 +49,36 @@ inputs:
     doc: "Pre-computed GTEx SE target matrix"
     sbg:suggestedValue:
       class: File
-      path: 69441df3e0dee132ae3749e0
-      name: gtex-se-target-mat-raw.qs2
+      path: 69a1fb0e55b9050ca717354f
+      name: gtex-se-junction-mat-raw-filtered.qs2
   gtex_ri_junction_matrix:
     type: File
     doc: "Pre-computed GTEx RI junction matrix"
     sbg:suggestedValue:
       class: File
-      path: 69441df3e0dee132ae3749ed
-      name: gtex-ri-junction-mat-raw.qs2
+      path: 69a1fb0e55b9050ca717353d
+      name: gtex-ri-junction-mat-raw-filtered.qs2
   gtex_ri_target_matrix:
     type: File
     doc: "Pre-computed GTEx RI target matrix"
     sbg:suggestedValue:
       class: File
-      path: 69441df4e0dee132ae374a16
-      name: gtex-ri-target-mat-raw.qs2
+      path: 69a1fb0e55b9050ca7173544
+      name: gtex-ri-target-mat-raw-filtered.qs2
   gtex_a3ss_junction_matrix:
     type: File
     doc: "Pre-computed GTEx A3SS junction matrix"
     sbg:suggestedValue:
       class: File
-      path: 69441df4e0dee132ae374a10
-      name: gtex-a3ss-junction-mat-raw.qs2
+      path: 69a1fb0e55b9050ca717353e
+      name: gtex-a3ss-junction-mat-raw-filtered.qs2
   gtex_a5ss_junction_matrix:
     type: File
     doc: "Pre-computed GTEx A5SS junction matrix"
     sbg:suggestedValue:
       class: File
-      path: 69441df4e0dee132ae374a1e
-      name: gtex-a5ss-junction-mat-raw.qs2
+      path: 69a1fb0e55b9050ca7173558
+      name: gtex-a5ss-junction-mat-raw-filtered.qs2
   
   gencode_gtf:
     type: File
@@ -141,15 +141,15 @@ inputs:
     doc: "GTEx STAR-Fusion normals"
     sbg:suggestedValue:
       class: File
-      path: 6984f117e0dee132ae7820c3
-      name: cfde-gtex-fusion-starfusionv2.7.10a.tsv.gz
+      path: 69a1fb0e55b9050ca7173541
+      name: cfde-gtex-fusion-starfusion-filtered.tsv.gz
   gtex_arriba_normals:
     type: File
     doc: "GTEx Arriba normals"
     sbg:suggestedValue:
       class: File
-      path: 6984f117e0dee132ae7820c4
-      name: cfde-gtex-arribav2.2.1_formatted.annotated.tsv.gz
+      path: 69a1fb0e55b9050ca7173546
+      name: cfde-gtex-arriba_formatted.annotated-filtered.tsv.gz
   annofuse_filter:
     type: File
     doc: "annoFuse filter file"
