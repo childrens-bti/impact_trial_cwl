@@ -42,15 +42,15 @@ inputs:
     doc: "Pre-computed GTEx SE junction matrix"
     sbg:suggestedValue:
       class: File
-      path: 69441df4e0dee132ae3749ff
-      name: gtex-se-junction-mat-raw.qs2
+      path: 69a1fb0e55b9050ca717354f
+      name: gtex-se-junction-mat-raw-filtered.qs2
   gtex_se_target_matrix:
     type: File
     doc: "Pre-computed GTEx SE target matrix"
     sbg:suggestedValue:
       class: File
-      path: 69a1fb0e55b9050ca717354f
-      name: gtex-se-junction-mat-raw-filtered.qs2
+      path: 69a1fb0e55b9050ca7173542
+      name: gtex-se-target-mat-raw-filtered.qs2
   gtex_ri_junction_matrix:
     type: File
     doc: "Pre-computed GTEx RI junction matrix"
