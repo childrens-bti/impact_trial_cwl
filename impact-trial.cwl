@@ -141,14 +141,14 @@ inputs:
     doc: "GTEx STAR-Fusion normals"
     sbg:suggestedValue:
       class: File
-      path: 69ca7d2c75cb7042fe4d436d
+      path: 69cad5e4fcd17d74e4c49d18
       name: gtex-fusion-starfusionv2.7.10a.brain.skin.testes.under40.filtered.tsv.gz
   gtex_arriba_normals:
     type: File
     doc: "GTEx Arriba normals"
     sbg:suggestedValue:
       class: File
-      path: 69ca7d2d75cb7042fe4d438c
+      path: 69cad5e4fcd17d74e4c49d19
       name: gtex-arribav2.2.1_formatted.annotated.brain.skin.testes.under40.filtered.tsv.gz
   annofuse_filter:
     type: File
