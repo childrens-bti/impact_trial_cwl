@@ -336,5 +336,5 @@ hints:
 - class: "sbg:maxNumberOfParallelInstances"
   value: 2
 "sbg:links":
-- id: "https://github.com/childrens-bti/impact_trial_cwl/releases/tag/v1.0.1"
+- id: "https://github.com/childrens-bti/impact_trial_cwl"
   label: github-release
