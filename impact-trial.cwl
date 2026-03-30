@@ -42,43 +42,43 @@ inputs:
     doc: "Pre-computed GTEx SE junction matrix"
     sbg:suggestedValue:
       class: File
-      path: 69a1fb0e55b9050ca717354f
-      name: gtex-se-junction-mat-raw-filtered.qs2
+      path: 69ca7d2d75cb7042fe4d4382
+      name: gtex-se-rmatsv4.3.0-junction-ct-mat-brain.skin.testes.under40.filtered.qs2
   gtex_se_target_matrix:
     type: File
     doc: "Pre-computed GTEx SE target matrix"
     sbg:suggestedValue:
       class: File
-      path: 69a1fb0e55b9050ca7173542
-      name: gtex-se-target-mat-raw-filtered.qs2
+      path: 69ca7d2d75cb7042fe4d4387
+      name: gtex-se-rmatsv4.3.0-target-ct-mat-brain.skin.testes.under40.filtered.qs2
   gtex_ri_junction_matrix:
     type: File
     doc: "Pre-computed GTEx RI junction matrix"
     sbg:suggestedValue:
       class: File
-      path: 69a1fb0e55b9050ca717353d
-      name: gtex-ri-junction-mat-raw-filtered.qs2
+      path: 69ca7d2c75cb7042fe4d436b
+      name: gtex-ri-rmatsv4.3.0-junction-ct-mat-brain.skin.testes.under40.filtered.qs2
   gtex_ri_target_matrix:
     type: File
     doc: "Pre-computed GTEx RI target matrix"
     sbg:suggestedValue:
       class: File
-      path: 69a1fb0e55b9050ca7173544
-      name: gtex-ri-target-mat-raw-filtered.qs2
+      path: 69ca7d2c75cb7042fe4d4371
+      name: gtex-ri-rmatsv4.3.0-target-ct-mat-brain.skin.testes.under40.filtered.qs2
   gtex_a3ss_junction_matrix:
     type: File
     doc: "Pre-computed GTEx A3SS junction matrix"
     sbg:suggestedValue:
       class: File
-      path: 69a1fb0e55b9050ca717353e
-      name: gtex-a3ss-junction-mat-raw-filtered.qs2
+      path: 69ca7d2c75cb7042fe4d437d
+      name: gtex-a3ss-rmatsv4.3.0-junction-ct-mat-brain.skin.testes.under40.filtered.qs2
   gtex_a5ss_junction_matrix:
     type: File
     doc: "Pre-computed GTEx A5SS junction matrix"
     sbg:suggestedValue:
       class: File
-      path: 69a1fb0e55b9050ca7173558
-      name: gtex-a5ss-junction-mat-raw-filtered.qs2
+      path: 69ca7d2c75cb7042fe4d436a
+      name: gtex-a5ss-rmatsv4.3.0-junction-ct-mat-brain.skin.testes.under40.filtered.qs2
   
   gencode_gtf:
     type: File
@@ -141,15 +141,15 @@ inputs:
     doc: "GTEx STAR-Fusion normals"
     sbg:suggestedValue:
       class: File
-      path: 69a1fb0e55b9050ca7173541
-      name: cfde-gtex-fusion-starfusion-filtered.tsv.gz
+      path: 69ca7d2c75cb7042fe4d436d
+      name: gtex-fusion-starfusionv2.7.10a.brain.skin.testes.under40.filtered.tsv.gz
   gtex_arriba_normals:
     type: File
     doc: "GTEx Arriba normals"
     sbg:suggestedValue:
       class: File
-      path: 69a1fb0e55b9050ca7173546
-      name: cfde-gtex-arriba_formatted.annotated-filtered.tsv.gz
+      path: 69ca7d2d75cb7042fe4d438c
+      name: gtex-arribav2.2.1_formatted.annotated.brain.skin.testes.under40.filtered.tsv.gz
   annofuse_filter:
     type: File
     doc: "annoFuse filter file"
