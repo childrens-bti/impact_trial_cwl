@@ -85,7 +85,7 @@ inputs:
     doc: "GENCODE gene annotation GTF file"
     sbg:suggestedValue:
       class: File
-      path: 69441df4e0dee132ae374a13
+      path: 69ca7c3375cb7042fe4d3b88
       name: gencode.v39.primary_assembly.annotation.gtf.gz
   
   # Tumor splice event files
@@ -113,21 +113,21 @@ inputs:
     doc: "Ensembl proteome reference (Homo_sapiens.GRCh38.pep.all.fa.gz)"
     sbg:suggestedValue:
       class: File
-      path: 69441df4e0dee132ae3749fb
+      path: 69ca7c3475cb7042fe4d3bb0
       name: Homo_sapiens.GRCh38.pep.all.fa.gz
   refseq_proteome:
     type: File
     doc: "RefSeq proteome reference (GCF_000001405.40_GRCh38.p14_protein.faa.gz)"
     sbg:suggestedValue:
       class: File
-      path: 69441df4e0dee132ae374a05
+      path: 69ca7c3475cb7042fe4d3bb8
       name: GCF_000001405.40_GRCh38.p14_protein.faa.gz
   cds_file:
     type: File
     doc: "CDS reference file (Homo_sapiens.GRCh38.cds.all.fa.gz)"
     sbg:suggestedValue:
       class: File
-      path: 69441df3e0dee132ae3749f0
+      path: 69ca7c3475cb7042fe4d3ba4
       name: Homo_sapiens.GRCh38.cds.all.fa.gz
   
   star_fusion_file:
@@ -158,7 +158,7 @@ inputs:
     doc: "Reference genome FASTA (GRCh38)"
     sbg:suggestedValue:
       class: File
-      path: 69441df4e0dee132ae374a0b
+      path: 69ca7c3375cb7042fe4d3b8c
       name: GRCh38.primary_assembly.genome.fa.gz
   
   # Translation parameters
