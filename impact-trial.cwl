@@ -177,8 +177,8 @@ inputs:
     doc: "UniProt canonical proteome FASTA"
     sbg:suggestedValue:
       class: File
-      path: 69441d765ddfaa35efbfa728
-      name: UP000005640_9606.fasta
+      path: 69cab993fcd17d74e4c4892e
+      name: UP000005640_9606_07242024.fasta
 
 outputs:
   # Final outputs
