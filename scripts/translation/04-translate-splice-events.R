@@ -44,7 +44,8 @@ genome <- readDNAStringSet(genome_fa)
 names(genome) <- sub(" .*$", "", names(genome))
 
 ### Load files
-events <- read_tsv(event_file, col_types = cols()) 
+events <- read_tsv(event_file, col_types = cols()) %>%
+  dplyr::filter(chr %in% names(genome))
 
 # filter for splice event junctions
 junctions <- events %>%
