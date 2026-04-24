@@ -74,7 +74,6 @@ Edit `params/impact-trial-inputs.yml` to specify your input files and parameters
 
 ```yaml
 # Sample output basenames
-output_basename_dna: "BS_1CZPVCXR_taskid"  # Base name for DNA-derived outputs (SNVs)
 output_basename_rna: "BS_S6Q7NKA3_taskid"  # Base name for RNA-derived outputs (fusions, splicing)
 output_basename_combined: "BS_1CZPVCXR_BS_S6Q7NKA3_taskid"  # Base name for combined outputs
 
@@ -87,10 +86,22 @@ gtex_se_target_matrix:
   path: ../data/gtex-se-target-mat-raw.qs2
 # ... (see params/impact-trial-inputs.yml for full example)
 
-# Tumor data files
+# Optional DNA inputs: include this block only when SNV translation is needed
+output_basename_dna: "BS_1CZPVCXR_taskid"
 maf_file:
   class: File
   path: ../data/your_sample.maf
+ensembl_proteome:
+  class: File
+  path: ../data/Homo_sapiens.GRCh38.pep.all.fa.gz
+refseq_proteome:
+  class: File
+  path: ../data/GCF_000001405.40_GRCh38.p14_protein.faa.gz
+cds_file:
+  class: File
+  path: ../data/Homo_sapiens.GRCh38.cds.all.fa.gz
+
+# RNA and splice inputs remain required
 # ... (update other paths as needed)
 ```
 
@@ -115,9 +126,9 @@ The workflow produces:
 
 ### Primary Outputs
 
-**File naming convention:** Uses `output_basename_dna`, `output_basename_rna`, and `output_basename_combined` parameters
+**File naming convention:** Uses `output_basename_rna` and `output_basename_combined` parameters for all runs, plus `output_basename_dna` when the optional SNV path is enabled
 
-Example with `output_basename_dna="BS_1CZPVCXR_taskid"`, `output_basename_rna="BS_S6Q7NKA3_taskid"`, and `output_basename_combined="BS_1CZPVCXR_BS_S6Q7NKA3_taskid"`:
+Example with `output_basename_dna="BS_1CZPVCXR_taskid"`, `output_basename_rna="BS_S6Q7NKA3_taskid"`, and `output_basename_combined="BS_1CZPVCXR_BS_S6Q7NKA3_taskid"` when SNV translation is enabled:
 
 - **final_filtered_fasta** (`BS_1CZPVCXR_BS_S6Q7NKA3_taskid_tumor_specific_filtered.fasta`) 
   - Tumor-specific peptides with 100% UniProt matches removed
@@ -160,21 +171,21 @@ All outputs are written directly to the specified output directory (e.g., `outpu
    - annoFuse filter file
 
 3. **Tumor Data**
-   - Somatic MAF file
+  - Somatic MAF file (optional; required only for SNV translation)
    - Fusion predictions (STAR-Fusion and Arriba)
    - rMATS junction count files (SE, RI, A3SS, A5SS)
 
 4. **Reference Genomes/Proteomes**
    - GRCh38 primary assembly FASTA
    - GENCODE GTF annotation (e.g., gencode.v39.primary_assembly.annotation.gtf.gz)
-   - Ensembl proteome FASTA
-   - RefSeq proteome FASTA
-   - CDS reference FASTA
+  - Ensembl proteome FASTA (required only for SNV translation)
+  - RefSeq proteome FASTA (required only for SNV translation)
+  - CDS reference FASTA (required only for SNV translation)
    - UniProt canonical proteome FASTA
 
 ### Parameters
 
-- `output_basename_dna` - Base name for DNA-derived output files (SNVs). Used in intermediate output filenames. Example: `BS_1CZPVCXR_taskid`
+- `output_basename_dna` - Optional base name for DNA-derived output files (SNVs). Required only when `maf_file` is provided. Example: `BS_1CZPVCXR_taskid`
 - `output_basename_rna` - Base name for RNA-derived output files (fusions, splice events). Used in intermediate output filenames. Example: `BS_S6Q7NKA3_taskid`
 - `output_basename_combined` - Base name for combined DNA+RNA outputs (merged/filtered FASTA files). Used in final output filenames. Example: `BS_1CZPVCXR_BS_S6Q7NKA3_taskid`
 - `min_peptide_length` - Minimum amino acid length (default: 8)
