@@ -27,8 +27,11 @@ requirements:
 inputs:
   # Sample metadata
   output_basename_dna:
-    type: string
-    doc: "Base name for DNA-derived output files (SNVs). Example: 'BS_1CZPVCXR_taskid'"
+    type:
+      - "null"
+      - string
+    default: null
+    doc: "Base name for DNA-derived output files (SNVs). Optional. Example: 'BS_1CZPVCXR_taskid'"
   output_basename_rna:
     type: string
     doc: "Base name for RNA-derived output files (fusions, splicing). Example: 'BS_S6Q7NKA3_taskid'"
@@ -104,31 +107,31 @@ inputs:
   
   # Translation inputs (Steps 3-6)
   maf_file:
-    type: File
-    doc: "Somatic MAF file for SNV translation"
+    type:
+      - "null"
+      - File
+    default: null
+    doc: "Somatic MAF file for SNV translation (optional)"
   
   # Proteome reference files
   ensembl_proteome:
-    type: File
-    doc: "Ensembl proteome reference (Homo_sapiens.GRCh38.pep.all.fa.gz)"
-    sbg:suggestedValue:
-      class: File
-      path: 69ca7c3475cb7042fe4d3bb0
-      name: Homo_sapiens.GRCh38.pep.all.fa.gz
+    type:
+      - "null"
+      - File
+    default: null
+    doc: "Ensembl proteome reference (Homo_sapiens.GRCh38.pep.all.fa.gz). Required only when maf_file is provided."
   refseq_proteome:
-    type: File
-    doc: "RefSeq proteome reference (GCF_000001405.40_GRCh38.p14_protein.faa.gz)"
-    sbg:suggestedValue:
-      class: File
-      path: 69ca7c3475cb7042fe4d3bb8
-      name: GCF_000001405.40_GRCh38.p14_protein.faa.gz
+    type:
+      - "null"
+      - File
+    default: null
+    doc: "RefSeq proteome reference (GCF_000001405.40_GRCh38.p14_protein.faa.gz). Required only when maf_file is provided."
   cds_file:
-    type: File
-    doc: "CDS reference file (Homo_sapiens.GRCh38.cds.all.fa.gz)"
-    sbg:suggestedValue:
-      class: File
-      path: 69ca7c3475cb7042fe4d3ba4
-      name: Homo_sapiens.GRCh38.cds.all.fa.gz
+    type:
+      - "null"
+      - File
+    default: null
+    doc: "CDS reference file (Homo_sapiens.GRCh38.cds.all.fa.gz). Required only when maf_file is provided."
   
   star_fusion_file:
     type: File
@@ -219,7 +222,9 @@ outputs:
     doc: "Translation report for splice targets"
   
   snv_peptides:
-    type: File
+    type:
+      - "null"
+      - File
     outputSource: snv_translate/snv_peptides
     doc: "SNV-derived peptides"
   
@@ -261,6 +266,7 @@ steps:
   # Step 2: Translate SNVs
   snv_translate:
     run: tools/snv-translate.cwl
+    when: $(inputs.maf_file !== null)
     in:
       output_basename: output_basename_dna
       maf_file: maf_file
