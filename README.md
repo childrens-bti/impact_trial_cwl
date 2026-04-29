@@ -75,7 +75,7 @@ Edit `params/impact-trial-inputs.yml` to specify your input files and parameters
 ```yaml
 # Sample output basenames
 output_basename_rna: "BS_S6Q7NKA3_taskid"  # Base name for RNA-derived outputs (fusions, splicing)
-output_basename_combined: "BS_1CZPVCXR_BS_S6Q7NKA3_taskid"  # Base name for combined outputs
+output_basename_combined: "BS_1CZPVCXR_BS_S6Q7NKA3_taskid"  # Base name for final outputs (set equal to output_basename_rna for RNA-only runs)
 
 # Pre-computed GTEx matrices (required)
 gtex_se_junction_matrix:
@@ -103,6 +103,9 @@ cds_file:
 
 # RNA and splice inputs remain required
 # ... (update other paths as needed)
+
+# For RNA-only runs (DNA inputs omitted), set:
+# output_basename_combined: "BS_S6Q7NKA3_taskid"  # same as output_basename_rna
 ```
 
 ### 3. Run the Workflow
@@ -126,7 +129,7 @@ The workflow produces:
 
 ### Primary Outputs
 
-**File naming convention:** Uses `output_basename_rna` and `output_basename_combined` parameters for all runs, plus `output_basename_dna` when the optional SNV path is enabled
+**File naming convention:** Uses `output_basename_rna` and `output_basename_combined` parameters for all runs, plus `output_basename_dna` when the optional SNV path is enabled. For RNA-only runs (DNA inputs omitted), set `output_basename_combined` equal to `output_basename_rna`.
 
 Example with `output_basename_dna="BS_1CZPVCXR_taskid"`, `output_basename_rna="BS_S6Q7NKA3_taskid"`, and `output_basename_combined="BS_1CZPVCXR_BS_S6Q7NKA3_taskid"` when SNV translation is enabled:
 
@@ -187,7 +190,7 @@ All outputs are written directly to the specified output directory (e.g., `outpu
 
 - `output_basename_dna` - Optional base name for DNA-derived output files (SNVs). Required only when `maf_file` is provided. Example: `BS_1CZPVCXR_taskid`
 - `output_basename_rna` - Base name for RNA-derived output files (fusions, splice events). Used in intermediate output filenames. Example: `BS_S6Q7NKA3_taskid`
-- `output_basename_combined` - Base name for combined DNA+RNA outputs (merged/filtered FASTA files). Used in final output filenames. Example: `BS_1CZPVCXR_BS_S6Q7NKA3_taskid`
+- `output_basename_combined` - Base name for final merged/filtered FASTA outputs. Used in final output filenames. Use `BS_1CZPVCXR_BS_S6Q7NKA3_taskid` for DNA+RNA runs, and set equal to `output_basename_rna` for RNA-only runs.
 - `min_peptide_length` - Minimum amino acid length (default: 8)
 - `n_flank_bases` - Flanking nucleotides for splice junctions (default: 20)
 
