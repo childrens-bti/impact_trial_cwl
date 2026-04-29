@@ -27,9 +27,7 @@ requirements:
 inputs:
   # Sample metadata
   output_basename_dna:
-    type:
-      - "null"
-      - string
+    type: string?
     default: null
     doc: "Base name for DNA-derived output files (SNVs). Optional. Example: 'BS_1CZPVCXR_taskid'"
   output_basename_rna:
@@ -107,29 +105,21 @@ inputs:
   
   # Translation inputs (Steps 3-6)
   maf_file:
-    type:
-      - "null"
-      - File
+    type: File?
     default: null
     doc: "Somatic MAF file for SNV translation (optional)"
   
   # Proteome reference files
   ensembl_proteome:
-    type:
-      - "null"
-      - File
+    type: File?
     default: null
     doc: "Ensembl proteome reference (Homo_sapiens.GRCh38.pep.all.fa.gz). Required only when maf_file is provided."
   refseq_proteome:
-    type:
-      - "null"
-      - File
+    type: File?
     default: null
     doc: "RefSeq proteome reference (GCF_000001405.40_GRCh38.p14_protein.faa.gz). Required only when maf_file is provided."
   cds_file:
-    type:
-      - "null"
-      - File
+    type: File?
     default: null
     doc: "CDS reference file (Homo_sapiens.GRCh38.cds.all.fa.gz). Required only when maf_file is provided."
   
@@ -222,9 +212,7 @@ outputs:
     doc: "Translation report for splice targets"
   
   snv_peptides:
-    type:
-      - "null"
-      - File
+    type: File?
     outputSource: snv_translate/snv_peptides
     doc: "SNV-derived peptides"
   

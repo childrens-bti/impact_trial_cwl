@@ -13,9 +13,7 @@ inputs:
     doc: "Base name for output files"
   
   snv_peptides:
-    type:
-      - "null"
-      - File
+    type: File?
     inputBinding:
       position: 1
     doc: "SNV peptides FASTA (optional)"
