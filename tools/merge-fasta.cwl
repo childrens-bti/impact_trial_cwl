@@ -5,14 +5,6 @@ label: Merge FASTA files
 doc: |
   Concatenates all peptide FASTA files into a single merged FASTA
 
-requirements:
-  InitialWorkDirRequirement:
-    listing:
-      - $(inputs.snv_peptides)
-      - $(inputs.star_fusion_peptides)
-      - $(inputs.arriba_fusion_peptides)
-      - $(inputs.splice_peptides)
-
 baseCommand: [cat]
 
 inputs:
@@ -21,10 +13,10 @@ inputs:
     doc: "Base name for output files"
   
   snv_peptides:
-    type: File
+    type: File?
     inputBinding:
       position: 1
-    doc: "SNV peptides FASTA"
+    doc: "SNV peptides FASTA (optional)"
   
   star_fusion_peptides:
     type: File
