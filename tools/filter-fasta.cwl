@@ -42,10 +42,11 @@ outputs:
     outputBinding:
       glob: "$(inputs.output_basename)_tumor_specific_filtered.fasta"
   
-  blast_results:
+  match_report:
     type: File
+    doc: "Per-peptide table: peptide_id, peptide, in_uniprot (yes/no)"
     outputBinding:
-      glob: "$(inputs.output_basename)_uniprot_blast_results.tsv"
+      glob: "$(inputs.output_basename)_uniprot_match_report.tsv"
   
   full_matches:
     type: File
