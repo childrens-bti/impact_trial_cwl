@@ -3,11 +3,13 @@ class: CommandLineTool
 
 label: Filter FASTA against UniProt
 doc: |
-  BLASTs custom peptides against UniProt canonical database and filters out 100% matches
+  Removes custom peptides that occur as an exact, full-length substring of any
+  UniProt canonical protein. Each unique peptide is checked for containment on its
+  own; no alignment (BLAST) is involved.
 
 requirements:
   DockerRequirement:
-    dockerPull: "pgc-images.sbgenomics.com/childrens-bti/impact_trial_cwl:latest"
+    dockerPull: "pgc-images.sbgenomics.com/childrens-bti/impact_trial_cwl:v1.3.0"
   InitialWorkDirRequirement:
     listing:
       - $(inputs.uniprot_fasta)

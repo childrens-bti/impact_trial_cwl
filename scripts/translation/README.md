@@ -19,7 +19,7 @@ Generate peptide FASTA files from:
 6. `06-rMATS_A3SS_translation.R`: translates retained alternative 3' splice site (A3SS) usage events
 7. `07-rMATS_A5SS_translation.R`: translates retained alternative 5' splice site (A5SS) usage events
 8. `08-merge-fasta.sh`: merges all results into one custom fasta file
-9. `09-filter-fasta.sh`: blasts `custom.fasta` peptides against the uniprot canonical peptide BLAST database (UP000005640_9606.fasta, obtained from UniProt, last modified date of 2024-07-24), and filters out any peptides with 100% query match. 
+9. `09-filter-fasta.sh`: checks each `custom.fasta` peptide for an exact, full-length substring match in the UniProt canonical proteome (UP000005640_9606.fasta, obtained from UniProt, last modified date of 2024-07-24), and filters out any peptide that is found. Writes a per-peptide `uniprot_match_report.tsv` (peptide_id, peptide, in_uniprot).
 
 ### General usage of scripts
 
@@ -113,7 +113,7 @@ options:
 ├── results
 │   ├── A3SS-event-translation-report.tsv
 │   ├── A5SS-event-translation-report.tsv
-│   ├── blast_results.tsv
+│   ├── uniprot_match_report.tsv
 │   ├── custom_filtered.fasta
 │   ├── custom.fasta
 │   ├── full_matches.txt

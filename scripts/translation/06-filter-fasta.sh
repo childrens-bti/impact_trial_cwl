@@ -9,8 +9,14 @@ set -o pipefail
 # translation steps emit a window around each event, so most of what they
 # produce is ordinary flanking sequence; this is what strips it.
 #
-# This is an exact, full-length substring test, so it is done with grep -F -f
-# (Aho-Corasick: every pattern matched in a single pass), not with blastp.
+# This is an exact, full-length substring test: each unique peptide is checked
+# on its own for containment in the reference (Python `in`), not with blastp.
+#
+# Do NOT replace this with `grep -o -F -f peptides ref`. grep -o reports only
+# non-overlapping matches (leftmost-longest at each position, then it resumes
+# after the match), so a peptide that overlaps or is a prefix of another
+# matched peptide is never reported. The translation steps emit overlapping
+# windows, so this would leave canonical peptides unfiltered.
 #
 # blastp was used here previously. It is a heuristic LOCAL ALIGNER with an
 # E-value reporting threshold, and short queries score too low to be reported.
@@ -45,34 +51,51 @@ filtered_fasta="${output_basename}_tumor_specific_filtered.fasta"
 match_report="${output_basename}_uniprot_match_report.tsv"
 full_matches="${output_basename}_uniprot_full_matches.txt"
 
-# Flatten the reference to ONE line per protein before matching. The FASTA is
-# wrapped at 60 columns, and a peptide spanning a line break would otherwise be
-# silently missed -- a real failure mode, hit while testing this change.
-seqkit seq -w 0 "$uniprot_fasta" | grep -v '^>' > uniprot_flat.txt
+# Per-peptide containment check. Both FASTAs are parsed record by record, so
+# line wrapping in the reference (60 columns) cannot hide a peptide that spans
+# a line break. Proteins are joined with a newline, which never occurs in a
+# peptide, so a match cannot straddle two proteins.
+python3 - "$input_fasta" "$uniprot_fasta" "$match_report" "$full_matches" <<'PY'
+import sys
 
-# id<TAB>sequence for every query peptide
-seqkit fx2tab -i "$input_fasta" | cut -f1,2 > query_tab.tsv
-cut -f2 query_tab.tsv | sort -u > query_seqs.txt
+query_fasta, ref_fasta, report_path, matches_path = sys.argv[1:5]
 
-# One pass: which query sequences occur anywhere in the reference
-if [ -s query_seqs.txt ]; then
-  LC_ALL=C grep -o -F -f query_seqs.txt uniprot_flat.txt | sort -u > matched_seqs.txt || true
-else
-  : > matched_seqs.txt
-fi
+def read_fasta(path):
+    """Yield (id, sequence); id is the header up to the first whitespace,
+    matching how seqkit identifies records."""
+    rid, chunks = None, []
+    with open(path) as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            if line.startswith(">"):
+                if rid is not None:
+                    yield rid, "".join(chunks)
+                rid, chunks = (line[1:].split() or [""])[0], []
+            else:
+                chunks.append(line)
+    if rid is not None:
+        yield rid, "".join(chunks)
 
-# Map matched sequences back to peptide IDs
-awk -F'\t' 'NR==FNR { m[$0]; next } ($2 in m) { print $1 }' \
-    matched_seqs.txt query_tab.tsv | sort -u > "$full_matches"
+reference = "\n".join(seq for _, seq in read_fasta(ref_fasta))
+queries = list(read_fasta(query_fasta))
 
-# Per-peptide report, replacing the old BLAST tabular output
-{
-  printf 'peptide_id\tpeptide\tin_uniprot\n'
-  awk -F'\t' 'NR==FNR { m[$0]; next } { print $1"\t"$2"\t"(($2 in m) ? "yes" : "no") }' \
-      matched_seqs.txt query_tab.tsv
-} > "$match_report"
+# An empty sequence is trivially "in" any string; never treat it as a match.
+in_ref = {seq: bool(seq) and seq in reference for seq in {seq for _, seq in queries}}
 
-total=$(grep -c "^>" "$input_fasta")
+with open(report_path, "w") as report:
+    report.write("peptide_id\tpeptide\tin_uniprot\n")
+    for pid, seq in queries:
+        report.write(f"{pid}\t{seq}\t{'yes' if in_ref[seq] else 'no'}\n")
+
+matched_ids = sorted({pid for pid, seq in queries if in_ref[seq]})
+with open(matches_path, "w") as out:
+    out.writelines(f"{pid}\n" for pid in matched_ids)
+PY
+
+# grep -c exits 1 when the count is 0; do not let set -e kill an empty input
+total=$(grep -c "^>" "$input_fasta" || true)
 matches=$(wc -l < "$full_matches")
 remaining=$(( total - matches ))
 

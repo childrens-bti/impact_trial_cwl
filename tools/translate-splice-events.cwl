@@ -8,7 +8,7 @@ doc: |
 
 requirements:
   DockerRequirement:
-    dockerPull: "pgc-images.sbgenomics.com/childrens-bti/impact_trial_cwl:latest"
+    dockerPull: "pgc-images.sbgenomics.com/childrens-bti/impact_trial_cwl:v1.3.0"
   InitialWorkDirRequirement:
     listing:
       - $(inputs.genome_fasta)
