@@ -141,12 +141,12 @@ Example with `output_basename_dna="BS_1CZPVCXR_taskid"`, `output_basename_rna="B
   - Combined peptides from all sources (SNVs, STAR-Fusion, Arriba, splice events)
   - Output from Step 6 (before UniProt filtering)
   
-- **blast_results** (`BS_1CZPVCXR_BS_S6Q7NKA3_taskid_uniprot_blast_results.tsv`)
-  - BLAST alignment results against UniProt canonical proteome
-  - Tab-separated format: qseqid, sseqid, pident, length, qlen, slen
+- **match_report** (`BS_1CZPVCXR_BS_S6Q7NKA3_taskid_uniprot_match_report.tsv`)
+  - Per-peptide result of the exact-match check against the UniProt canonical proteome
+  - Tab-separated format: peptide_id, peptide, in_uniprot (yes/no)
   
 - **full_matches** (`BS_1CZPVCXR_BS_S6Q7NKA3_taskid_uniprot_full_matches.txt`)
-  - List of peptide IDs with 100% sequence identity to UniProt
+  - List of peptide IDs whose full sequence occurs exactly in a UniProt canonical protein
   - These peptides are excluded from the final filtered FASTA
 
 ### Intermediate Outputs
@@ -197,9 +197,9 @@ All outputs are written directly to the specified output directory (e.g., `outpu
 ## Docker Image
 
 The workflow uses a unified Docker image containing all required dependencies:
-- **Image:** `pgc-images.sbgenomics.com/childrens-bti/impact_trial_cwl:latest`
+- **Image:** `pgc-images.sbgenomics.com/childrens-bti/impact_trial_cwl:v1.3.0`
 - **Base:** `rocker/tidyverse:4.4.0`
-- **Includes:** R packages (tidyverse, qs2, Biostrings, rtracklayer, optparse), Python 3.11, rpg 2.0.3, NCBI BLAST+, bedtools, samtools, seqkit
+- **Includes:** R packages (tidyverse, qs2, Biostrings, rtracklayer, optparse), Python 3.10, rpg 2.0.3, NCBI BLAST+, bedtools, samtools, seqkit
 
 ## Development
 

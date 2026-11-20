@@ -185,10 +185,10 @@ outputs:
     outputSource: merge_fasta/merged_fasta
     doc: "Merged unfiltered peptide FASTA"
   
-  blast_results:
+  match_report:
     type: File
-    outputSource: filter_fasta/blast_results
-    doc: "BLAST results against UniProt"
+    outputSource: filter_fasta/match_report
+    doc: "Per-peptide UniProt match table: peptide_id, peptide, in_uniprot"
   
   full_matches:
     type: File
@@ -321,7 +321,7 @@ steps:
       uniprot_fasta: uniprot_fasta
     out:
       - filtered_fasta
-      - blast_results
+      - match_report
       - full_matches
 
 $namespaces:
